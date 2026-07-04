@@ -1,0 +1,96 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens do Mercadog.
+ * Base branca/off-white com terracota como cor de acento.
+ * Tudo que for cor, sombra, raio ou fonte sai daqui — não use valores soltos nos componentes.
+ */
+@theme {
+  /* Terracota (primária de destaque) */
+  --color-terracotta-50: #faf1ee;
+  --color-terracotta-100: #f3e3de; /* fundos de tags/badges */
+  --color-terracotta-200: #e8ccc4;
+  --color-terracotta-300: #c97b6a; /* detalhes suaves/estados */
+  --color-terracotta-500: #a84b3a; /* primária */
+  --color-terracotta-600: #8c3b2e; /* hover/ativo */
+  --color-terracotta-700: #6e2e24;
+
+  /* Neutros quentes */
+  --color-cream: #faf7f5; /* seções alternadas */
+  --color-ink: #2e2622; /* texto principal */
+  --color-clay: #6b5d57; /* texto secundário */
+  --color-sand: #efe8e4; /* bordas suaves */
+
+  /* Tipografia */
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-sans: 'Nunito Sans Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /* Sombras quentes (nunca azuladas) */
+  --shadow-warm: 0 2px 8px -2px rgb(46 38 34 / 0.06), 0 8px 24px -8px rgb(110 46 36 / 0.1);
+  --shadow-warm-lg: 0 4px 12px -4px rgb(46 38 34 / 0.08), 0 20px 44px -12px rgb(110 46 36 / 0.18);
+
+  /* Raios */
+  --radius-card: 1.25rem;
+}
+
+/* Assinatura visual: topo em arco (porta de casinha de cachorro). */
+@utility rounded-arch {
+  border-radius: calc(infinity * 1px) calc(infinity * 1px) var(--radius-card) var(--radius-card);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+  }
+
+  /* Estado de foco visível e consistente em todo elemento interativo */
+  :focus-visible {
+    outline: 2px solid var(--color-terracotta-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-terracotta-100);
+    color: var(--color-terracotta-700);
+  }
+}
+
+@layer components {
+  /* Faixa em loop (Marquee.jsx). Duas cópias do conteúdo + translateX(-50%) = loop perfeito. */
+  .marquee {
+    overflow: hidden;
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 30s linear infinite;
+  }
+
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
