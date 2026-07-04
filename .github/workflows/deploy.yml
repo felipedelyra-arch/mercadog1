@@ -25,6 +25,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          GITHUB_PAGES: 'true'
       # SPA fallback: o Pages serve 404.html para rotas como /agendamento
       - run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5
