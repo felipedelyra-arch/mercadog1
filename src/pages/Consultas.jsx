@@ -16,7 +16,7 @@ export default function Consultas() {
 
   return (
     <PageWrapper>
-      <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 py-12 sm:px-6">
+      <div className="bg-glow mx-auto flex max-w-6xl flex-col gap-12 px-4 py-12 sm:px-6">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading
             eyebrow="Clínica veterinária 24h"

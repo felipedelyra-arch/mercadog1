@@ -38,16 +38,47 @@
   border-radius: calc(infinity * 1px) calc(infinity * 1px) var(--radius-card) var(--radius-card);
 }
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-  }
+/* Texto com gradiente terracota — para a palavra de destaque do slogan. */
+@utility text-gradient {
+  background: linear-gradient(105deg, var(--color-terracotta-500), var(--color-terracotta-300));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
+/* Brilho radial suave atrás de seções de destaque (profundidade sem poluir). */
+@utility bg-glow {
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgb(168 75 58 / 0.07), transparent 70%),
+    radial-gradient(50% 40% at 90% 20%, rgb(201 123 106 / 0.08), transparent 70%);
+}
+
+/* Halo pulsante do botão/cartão de emergência — chama o olho sem irritar. */
+@utility pulse-emergency {
+  animation: pulse-emergency 2.4s ease-out infinite;
+}
+
+@keyframes pulse-emergency {
+  0% {
+    box-shadow: 0 0 0 0 rgb(140 59 46 / 0.45);
   }
+  70% {
+    box-shadow: 0 0 0 14px rgb(140 59 46 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(140 59 46 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-emergency {
+    animation: none;
+  }
+}
+
+@layer base {
+  /* Sem scroll-behavior: smooth aqui — a rolagem suave é do Lenis (index.html)
+     e os dois juntos conflitam. */
 
   body {
     @apply bg-white font-sans text-ink antialiased;

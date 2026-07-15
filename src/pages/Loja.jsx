@@ -37,7 +37,7 @@ export default function Loja() {
 
   return (
     <PageWrapper>
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6">
+      <div className="bg-glow mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6">
         <SectionHeading
           eyebrow="Loja"
           title="Tudo para o seu pet"

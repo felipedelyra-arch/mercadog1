@@ -7,6 +7,9 @@ import Marquee from '../components/ui/Marquee'
 import WaveDivider from '../components/ui/WaveDivider'
 import Features from '../components/Features'
 import QuickActions from '../components/QuickActions'
+import TopActions from '../components/TopActions'
+import Testimonials from '../components/Testimonials'
+import LocationSection from '../components/LocationSection'
 import SectionHeading from '../components/ui/SectionHeading'
 import ServiceCard from '../components/ServiceCard'
 import ProductCard from '../components/ProductCard'
@@ -22,18 +25,18 @@ import {
 import { useFetch } from '../hooks/useFetch'
 import { getProducts, getServices } from '../services/api'
 import { minPrice } from '../data/services'
+import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../config/whatsapp'
 
 /** Headline do hero: cada palavra sobe de trás de uma máscara. */
 const HEADLINE = [
-  { text: 'Cuidado' },
-  { text: 'de' },
-  { text: 'verdade' },
-  { text: 'para', accent: true },
-  { text: 'quem', accent: true },
-  { text: 'te', accent: true },
-  { text: 'ama', accent: true },
-  { text: 'de', accent: true },
-  { text: 'verdade', accent: true },
+  { text: 'Seu' },
+  { text: 'pet' },
+  { text: 'em' },
+  { text: 'boas' },
+  { text: 'mãos,' },
+  { text: '24h', accent: true },
+  { text: 'por', accent: true },
+  { text: 'dia', accent: true },
 ]
 
 /** Ícone flutuando suavemente no painel do hero (desliga com reduced motion via MotionConfig). */
@@ -64,8 +67,11 @@ export default function Home() {
 
   return (
     <PageWrapper>
-      {/* ---------- Hero ---------- */}
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-12 pb-20 sm:px-6 lg:grid-cols-2 lg:pt-20">
+      {/* Atalhos no topo: emergência e serviços a um toque, sem precisar rolar */}
+      <TopActions />
+
+      {/* ---------- Hero (compacto, com brilho de fundo) ---------- */}
+      <section className="bg-glow mx-auto grid max-w-6xl items-center gap-8 px-4 pt-8 pb-14 sm:px-6 lg:grid-cols-2 lg:pt-10">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -82,13 +88,13 @@ export default function Home() {
 
           <motion.h1
             variants={wordsContainer}
-            className="font-display text-4xl leading-[1.15] font-semibold text-ink sm:text-5xl lg:text-6xl"
+            className="font-display text-3xl leading-[1.15] font-semibold text-ink sm:text-4xl lg:text-5xl"
           >
             {HEADLINE.map(({ text, accent }, i) => (
               <span key={i} className="inline-block overflow-hidden pb-1 align-bottom">
                 <motion.span
                   variants={wordUp}
-                  className={`inline-block ${accent ? 'text-terracotta-500' : ''}`}
+                  className={`inline-block ${accent ? 'text-gradient' : ''}`}
                 >
                   {text}
                 </motion.span>
@@ -97,9 +103,8 @@ export default function Home() {
             ))}
           </motion.h1>
 
-          <motion.p variants={fadeUp} className="max-w-md text-lg text-clay">
-            Consultas, vacinas, cirurgias, banho e ortopedia veterinária
-            especializada — com clínica 24 horas e atendimento pelo WhatsApp.
+          <motion.p variants={fadeUp} className="max-w-md text-base text-clay sm:text-lg">
+            Emergência, consultas, banho e tosa e loja completa — tudo pelo WhatsApp.
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-2 flex flex-wrap gap-3">
@@ -112,6 +117,23 @@ export default function Home() {
               Ver produtos
             </Button>
           </motion.div>
+
+          {/* Prova social rápida: números que dão confiança de bater o olho */}
+          <motion.dl
+            variants={fadeUp}
+            className="mt-4 flex flex-wrap gap-x-8 gap-y-3 border-t border-sand pt-4"
+          >
+            {[
+              ['24h', 'emergência todos os dias'],
+              ['+5 mil', 'pets já atendidos'],
+              ['4.9★', 'avaliação dos tutores'],
+            ].map(([num, label]) => (
+              <div key={label}>
+                <dt className="font-display text-xl font-semibold text-terracotta-600">{num}</dt>
+                <dd className="text-xs text-clay">{label}</dd>
+              </div>
+            ))}
+          </motion.dl>
         </motion.div>
 
         {/* Painel visual do hero: arco (porta de casinha) com ícones flutuantes e parallax */}
@@ -120,9 +142,9 @@ export default function Home() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
           style={{ y: panelY }}
-          className="relative mx-auto w-full max-w-md"
+          className="relative mx-auto w-full max-w-sm"
         >
-          <div className="rounded-arch relative flex aspect-4/5 items-end justify-center overflow-hidden bg-terracotta-100">
+          <div className="rounded-arch relative flex aspect-square items-end justify-center overflow-hidden bg-terracotta-100">
             {/* Foto real dentro do arco — assinatura visual da casa */}
             <img
               src={`${import.meta.env.BASE_URL}hero-dog.jpg`}
@@ -154,9 +176,6 @@ export default function Home() {
 
       {/* Tudo que a casa oferece (grid inspirado no PetsStar) */}
       <Features />
-
-      {/* Acesso rápido (estilo linktree oficial) */}
-      <QuickActions />
 
       {/* ---------- Serviços ---------- */}
       {/* Onda orgânica: transição branco → creme */}
@@ -207,7 +226,7 @@ export default function Home() {
         <WaveDivider />
       </div>
 
-      {/* ---------- Consultas (CTA) ---------- */}
+      {/* ---------- Emergência 24h (CTA) ---------- */}
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <motion.div
           variants={fadeUp}
@@ -218,17 +237,28 @@ export default function Home() {
             <Stethoscope size={28} aria-hidden="true" />
           </span>
           <h2 className="max-w-lg font-display text-3xl font-semibold text-white">
-            Clínica veterinária 24 horas, todos os dias
+            Emergência? Atendemos 24 horas, todos os dias
           </h2>
           <p className="max-w-md text-terracotta-100">
             Consultas, vacinas, cirurgias e ortopedia especializada com o Dr. Wilson.
-            Agende online ou fale direto com a equipe médica.
+            Em caso de urgência, chame direto no WhatsApp — sem espera.
           </p>
-          <Button to="/consultas" className="bg-white !text-terracotta-600 hover:bg-terracotta-50">
-            Ver consultas disponíveis
-          </Button>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Button
+              variant="whatsapp"
+              href={buildWhatsAppUrl(WHATSAPP_NUMBERS.veterinario, WHATSAPP_MESSAGES.clinica24h)}
+            >
+              Emergência 24h no WhatsApp
+            </Button>
+            <Button to="/consultas" className="bg-white !text-terracotta-600 hover:bg-terracotta-50">
+              Ver consultas disponíveis
+            </Button>
+          </div>
         </motion.div>
       </section>
+
+      {/* ---------- Depoimentos ---------- */}
+      <Testimonials />
 
       {/* ---------- Produtos populares ---------- */}
       <div className="text-cream">
@@ -266,6 +296,17 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Fecha a seção creme */}
+      <div className="rotate-180 text-cream">
+        <WaveDivider />
+      </div>
+
+      {/* ---------- Localidade ---------- */}
+      <LocationSection />
+
+      {/* Acesso rápido (estilo linktree oficial) — reforço no fim da página */}
+      <QuickActions />
     </PageWrapper>
   )
 }

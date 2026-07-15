@@ -5,8 +5,8 @@ import { SITE } from '../../config/site'
 import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../../config/whatsapp'
 
 const FOOTER_LINKS = [
-  { to: '/agendamento', label: 'Agendar banho e tosa' },
   { to: '/consultas', label: 'Consultas veterinárias' },
+  { to: '/agendamento', label: 'Agendar banho e tosa' },
   { to: '/loja', label: 'Loja de produtos' },
 ]
 
@@ -41,6 +41,14 @@ export default function Footer() {
         {/* Navegação */}
         <nav aria-label="Links do rodapé" className="flex flex-col gap-2">
           <h3 className="mb-1 font-display text-lg font-semibold text-ink">Serviços</h3>
+          <a
+            href={buildWhatsAppUrl(WHATSAPP_NUMBERS.veterinario, WHATSAPP_MESSAGES.clinica24h)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-fit text-sm font-semibold text-terracotta-600 hover:text-terracotta-500"
+          >
+            Emergência veterinária 24h
+          </a>
           {FOOTER_LINKS.map(({ to, label }) => (
             <Link key={to} to={to} className="w-fit text-sm text-clay hover:text-terracotta-600">
               {label}

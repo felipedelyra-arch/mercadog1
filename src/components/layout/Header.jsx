@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import {Clock, MapPin, Menu, Phone, X} from 'lucide-react'
+import {Clock, MapPin, Menu, Phone, Siren, X} from 'lucide-react'
 import Logo from '../ui/Logo'
 import Button from '../ui/Button'
 import { EASE, staggerContainer, fadeUp } from '../../animations/variants'
@@ -97,7 +97,15 @@ export default function Header() {
             >
               <WhatsAppIcon size={17} aria-hidden="true" />
             </motion.a>
-            <Button to="/agendamento" size="sm">
+            <Button
+              size="sm"
+              href={buildWhatsAppUrl(WHATSAPP_NUMBERS.veterinario, WHATSAPP_MESSAGES.clinica24h)}
+              className="pulse-emergency !bg-terracotta-600 hover:!bg-terracotta-500"
+            >
+              <Siren size={15} aria-hidden="true" />
+              Emergência 24h
+            </Button>
+            <Button to="/agendamento" size="sm" variant="outline" className="!border-white/40 !text-white hover:!bg-white/10">
               Agende um horário
             </Button>
           </div>
@@ -183,7 +191,16 @@ export default function Header() {
                 ))}
 
                 <motion.div variants={fadeUp} className="mt-4">
-                  <Button to="/agendamento" className="w-full">
+                  <Button
+                    href={buildWhatsAppUrl(WHATSAPP_NUMBERS.veterinario, WHATSAPP_MESSAGES.clinica24h)}
+                    className="w-full !bg-terracotta-600 hover:!bg-terracotta-500"
+                  >
+                    <Siren size={18} aria-hidden="true" />
+                    Emergência 24h
+                  </Button>
+                </motion.div>
+                <motion.div variants={fadeUp} className="mt-2">
+                  <Button to="/agendamento" variant="outline" className="w-full">
                     Agende um horário
                   </Button>
                 </motion.div>

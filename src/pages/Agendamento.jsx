@@ -15,7 +15,7 @@ export default function Agendamento() {
 
   return (
     <PageWrapper>
-      <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 py-12 sm:px-6">
+      <div className="bg-glow mx-auto flex max-w-6xl flex-col gap-12 px-4 py-12 sm:px-6">
         <SectionHeading
           eyebrow="Banho e tosa"
           title="Agende o dia de spa do seu pet"

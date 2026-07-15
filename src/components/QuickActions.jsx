@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import {Bath, ChevronRight, ShoppingBag, Stethoscope} from 'lucide-react'
+import {Bath, ChevronRight, ShoppingBag, Siren, Stethoscope} from 'lucide-react'
 import { fadeUp, staggerContainer, viewportProps } from '../animations/variants'
 import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../config/whatsapp'
 import WhatsAppIcon from './ui/WhatsAppIcon'
@@ -14,19 +14,24 @@ export default function QuickActions() {
 
   const ACTIONS = [
     {
-      icon: Bath,
-      label: 'Agendar banho',
-      onClick: () => navigate('/agendamento', { state: { serviceId: 'banho' } }),
-    },
-    {
-      icon: ShoppingBag,
-      label: 'Comprar ração',
-      onClick: () => navigate('/loja?categoria=racao'),
+      icon: Siren,
+      label: 'Emergência 24h · Dr. Wilson',
+      href: buildWhatsAppUrl(WHATSAPP_NUMBERS.veterinario, WHATSAPP_MESSAGES.clinica24h),
     },
     {
       icon: Stethoscope,
-      label: 'Clínica 24h · Dr. Wilson',
-      href: buildWhatsAppUrl(WHATSAPP_NUMBERS.veterinario, WHATSAPP_MESSAGES.clinica24h),
+      label: 'Agendar consulta médica',
+      onClick: () => navigate('/consultas'),
+    },
+    {
+      icon: Bath,
+      label: 'Agendar banho e tosa',
+      onClick: () => navigate('/agendamento'),
+    },
+    {
+      icon: ShoppingBag,
+      label: 'Comprar ração e produtos',
+      onClick: () => navigate('/loja'),
     },
     {
       icon: WhatsAppIcon,

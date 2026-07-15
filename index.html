@@ -14,5 +14,22 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Rolagem suave com inércia (Lenis). Carrega via CDN e falha em silêncio
+         se estiver offline — o site continua rolando normalmente. -->
+    <script defer src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+    <script>
+      window.addEventListener('load', function () {
+        // Acessibilidade: quem prefere menos movimento rola sem inércia
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+        if (typeof window.Lenis !== 'function') return
+        var lenis = new window.Lenis({ lerp: 0.1, smoothWheel: true })
+        function raf(time) {
+          lenis.raf(time)
+          requestAnimationFrame(raf)
+        }
+        requestAnimationFrame(raf)
+      })
+    </script>
   </body>
 </html>
