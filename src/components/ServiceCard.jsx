@@ -7,7 +7,8 @@ import { getIcon } from './ui/icons'
 
 /**
  * Card de serviço/consulta com tilt 3D e spotlight que seguem o cursor.
- * `price` pode ser número (preço fixo) ou { from: n } para "a partir de".
+ * `price` pode ser número (preço fixo), { from: n } para "a partir de"
+ * ou null/undefined para "Sob consulta".
  * Com `onSelect` vira um card selecionável (usado nos fluxos de agendamento).
  */
 export default function ServiceCard({ item, price, selected = false, onSelect }) {
@@ -63,11 +64,14 @@ export default function ServiceCard({ item, price, selected = false, onSelect })
         <span className="font-display text-lg font-semibold text-terracotta-600">
           {typeof price === 'number' ? (
             formatPrice(price)
-          ) : (
+          ) : price?.from != null ? (
             <>
               <span className="text-xs font-sans font-normal text-clay">a partir de </span>
               {formatPrice(price.from)}
             </>
+          ) : (
+            /* Sem valor de tabela: depende da avaliação do veterinário */
+            <span className="text-base">Sob consulta</span>
           )}
         </span>
         <span className="inline-flex items-center gap-1 rounded-full bg-cream px-2.5 py-1 text-xs font-semibold text-clay">

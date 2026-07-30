@@ -14,7 +14,8 @@ import BookingForm from './BookingForm'
  * @param {Array} items - serviços ou tipos de consulta
  * @param {boolean} loading - mostra skeletons dos cards
  * @param {(item) => number|{from:number}} priceFor - preço exibido no card
- * @param {(item, slot, form) => string} buildWhatsMessage - mensagem de confirmação
+ * @param {(item, slot, form, booking) => string} buildWhatsMessage - mensagem de confirmação
+ *   (`booking` traz protocolo e link de confirmação da clínica)
  * @param {string} [initialItemId] - pré-seleciona um item (ex.: vindo de card da Home)
  */
 export default function BookingFlow({
@@ -130,8 +131,15 @@ export default function BookingFlow({
             {stepLabel(3, 'Complete os dados', false)}
             <BookingForm
               kind={kind}
-              summary={{ itemLabel: selectedItem.nome, day: slot.day, time: slot.time }}
-              buildWhatsMessage={(form) => buildWhatsMessage(selectedItem, slot, form)}
+              summary={{
+                itemId: selectedItem.id,
+                itemLabel: selectedItem.nome,
+                day: slot.day,
+                time: slot.time,
+              }}
+              buildWhatsMessage={(form, booking) =>
+                buildWhatsMessage(selectedItem, slot, form, booking)
+              }
             />
           </motion.section>
         )}

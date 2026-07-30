@@ -5,7 +5,10 @@ export const SITE = {
   description:
     'Consultas, vacinas, cirurgias, loja, banho e ortopedia veterinária especializada.',
   address: 'R. Caingangs, 223 · Centro · Tupã/SP · 17600-070',
-  phone: '(14) 99737-7299',
+  /** Número principal do Mercadog (fixo) */
+  phone: '(14) 3491-1244',
+  /** WhatsApp exclusivo do banho e tosa */
+  phoneBanhoTosa: '(14) 99629-6210',
   email: 'contato@mercadog.com.br',
   hours: [{ label: 'Todos os dias', value: 'Atendimento 24 horas' }],
   instagram: 'https://instagram.com/mercadogpetshop',

@@ -108,7 +108,8 @@ export default function Home() {
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-2 flex flex-wrap gap-3">
-            <Button to="/agendamento" size="lg">
+            {/* CTA principal leva direto às consultas veterinárias */}
+            <Button to="/consultas" size="lg">
               Agendar serviço
               <ArrowRight size={18} aria-hidden="true" />
             </Button>

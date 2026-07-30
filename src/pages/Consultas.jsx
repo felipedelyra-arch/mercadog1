@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useLocation } from 'react-router-dom'
 import {Stethoscope} from 'lucide-react'
 import PageWrapper from '../components/layout/PageWrapper'
 import BookingFlow from '../components/booking/BookingFlow'
@@ -7,12 +8,15 @@ import SectionHeading from '../components/ui/SectionHeading'
 import { fadeUp, staggerContainer, viewportProps } from '../animations/variants'
 import { useFetch } from '../hooks/useFetch'
 import { getConsultaTypes, getVets } from '../services/api'
+import { PET_SIZES } from '../data/services'
 import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../config/whatsapp'
 import WhatsAppIcon from '../components/ui/WhatsAppIcon'
 
 export default function Consultas() {
   const { data: types, loading } = useFetch(getConsultaTypes)
   const { data: vets } = useFetch(getVets)
+  // Tipo pré-selecionado quando o usuário clica num card do topo da Home
+  const { state } = useLocation()
 
   return (
     <PageWrapper>
@@ -21,7 +25,7 @@ export default function Consultas() {
           <SectionHeading
             eyebrow="Clínica veterinária 24h"
             title="Consultas com quem entende de pet"
-            subtitle="Consultas, vacinas, cirurgias e ortopedia especializada. Agende online ou fale direto com a equipe médica pelo WhatsApp — a clínica funciona 24 horas."
+            subtitle="Clínica geral, ortopedia especializada, exames por imagem, vacinas e cirurgias. Agende online ou fale direto com a equipe médica pelo WhatsApp — a clínica funciona 24 horas."
             align="left"
           />
           <Button
@@ -38,13 +42,19 @@ export default function Consultas() {
           kind="consulta"
           items={types ?? []}
           loading={loading}
-          priceFor={(type) => (type.aPartir ? { from: type.preco } : type.preco)}
-          buildWhatsMessage={(type, slot, form) =>
+          initialItemId={state?.consultaId}
+          priceFor={(type) =>
+            type.preco == null ? null : type.aPartir ? { from: type.preco } : type.preco
+          }
+          buildWhatsMessage={(type, slot, form, booking) =>
             WHATSAPP_MESSAGES.consulta({
               tipo: type.nome,
               data: slot.day.full,
               horario: slot.time,
               pet: form.pet,
+              porte: PET_SIZES.find((s) => s.id === form.porte)?.label,
+              protocolo: booking?.protocolo,
+              link: booking?.link,
             })
           }
         />

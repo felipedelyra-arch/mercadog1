@@ -3,6 +3,7 @@
  * que devolverá apenas a string). Importa só o que é usado — tree-shaking ok.
  */
 import {
+  AudioWaveform,
   Bath,
   Beef,
   Bone,
@@ -10,6 +11,8 @@ import {
   Droplets,
   HeartPulse,
   PawPrint,
+  Radiation,
+  Scan,
   Scissors,
   Smile,
   Sparkles,
@@ -20,6 +23,7 @@ import {
 } from 'lucide-react'
 
 const ICONS = {
+  AudioWaveform,
   Bath,
   Beef,
   Bone,
@@ -27,6 +31,8 @@ const ICONS = {
   Droplets,
   HeartPulse,
   PawPrint,
+  Radiation,
+  Scan,
   Scissors,
   Smile,
   Sparkles,

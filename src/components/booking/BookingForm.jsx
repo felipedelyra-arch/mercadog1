@@ -12,7 +12,8 @@ const INITIAL_FORM = { tutor: '', pet: '', porte: '', telefone: '', observacoes:
 
 /**
  * Formulário final do agendamento (frontend only).
- * `kind` = 'servico' pede o porte do pet (afeta o preço); 'consulta' não.
+ * `kind` = 'servico' exige o porte do pet (afeta o preço);
+ * na 'consulta' o porte aparece igual, só que opcional.
  * `summary` = { itemLabel, day, time } vindos dos passos anteriores.
  * `buildWhatsMessage(form)` gera a mensagem de confirmação contextual.
  */
@@ -46,6 +47,10 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
     setSending(true)
     const response = await createBooking({ kind, ...form, ...summary })
     setSending(false)
+    if (!response.ok) {
+      setErrors({ envio: response.erro ?? 'Tente novamente em instantes.' })
+      return
+    }
     setResult(response)
   }
 
@@ -87,7 +92,7 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
           </motion.span>
           <div>
             <h3 className="font-display text-2xl font-semibold text-ink">
-              Agendamento confirmado!
+              Pedido registrado!
             </h3>
             <p className="mt-1 text-sm text-clay">
               {summary.itemLabel} · {summary.day?.full} às {summary.time}
@@ -95,16 +100,22 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
             <p className="mt-2 text-xs text-clay">
               Protocolo <strong className="text-terracotta-600">{result.protocolo}</strong>
             </p>
+            {/* O pedido só vira agendamento quando a equipe confirma —
+                não prometemos horário garantido antes disso. */}
+            <p className="mt-3 rounded-xl bg-cream px-4 py-3 text-sm text-clay">
+              Falta um passo: <strong className="text-ink">envie a mensagem no WhatsApp</strong>{' '}
+              para a equipe receber o pedido. A confirmação chega para você logo depois.
+            </p>
           </div>
           <Button
             variant="whatsapp"
             href={buildWhatsAppUrl(
-              kind === 'consulta' ? WHATSAPP_NUMBERS.veterinario : WHATSAPP_NUMBERS.atendimento,
-              buildWhatsMessage(form),
+              kind === 'consulta' ? WHATSAPP_NUMBERS.veterinario : WHATSAPP_NUMBERS.banhoTosa,
+              buildWhatsMessage(form, result),
             )}
           >
             <WhatsAppIcon size={18} aria-hidden="true" />
-            Confirmar pelo WhatsApp
+            Enviar pedido no WhatsApp
           </Button>
         </motion.div>
       ) : (
@@ -171,35 +182,38 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
               {fieldError('pet')}
             </div>
 
-            {kind === 'servico' && (
-              <fieldset>
-                <legend className="mb-1 text-sm font-bold text-ink">Porte do pet</legend>
-                <div className="flex gap-2" role="radiogroup" aria-label="Porte do pet">
-                  {PET_SIZES.map(({ id, label, hint }) => (
-                    <motion.button
-                      key={id}
-                      type="button"
-                      whileTap={{ scale: 0.95 }}
-                      role="radio"
-                      aria-checked={form.porte === id}
-                      title={hint}
-                      onClick={() => {
-                        setForm((f) => ({ ...f, porte: id }))
-                        setErrors((errs) => ({ ...errs, porte: undefined }))
-                      }}
-                      className={`flex-1 rounded-xl border-2 py-2.5 text-sm font-semibold transition-colors ${
-                        form.porte === id
-                          ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-600'
-                          : 'border-sand text-clay hover:border-terracotta-300'
-                      }`}
-                    >
-                      {label}
-                    </motion.button>
-                  ))}
-                </div>
-                {fieldError('porte')}
-              </fieldset>
-            )}
+            {/* Porte: obrigatório no banho e tosa (muda o preço), opcional na consulta */}
+            <fieldset>
+              <legend className="mb-1 text-sm font-bold text-ink">
+                Porte do pet{' '}
+                {kind === 'consulta' && <span className="font-normal text-clay">(opcional)</span>}
+              </legend>
+              <div className="flex gap-2" role="radiogroup" aria-label="Porte do pet">
+                {PET_SIZES.map(({ id, label, hint }) => (
+                  <motion.button
+                    key={id}
+                    type="button"
+                    whileTap={{ scale: 0.95 }}
+                    role="radio"
+                    aria-checked={form.porte === id}
+                    title={hint}
+                    onClick={() => {
+                      // clicar de novo no mesmo porte limpa a escolha (útil no opcional)
+                      setForm((f) => ({ ...f, porte: f.porte === id ? '' : id }))
+                      setErrors((errs) => ({ ...errs, porte: undefined }))
+                    }}
+                    className={`flex-1 rounded-xl border-2 py-2.5 text-sm font-semibold transition-colors ${
+                      form.porte === id
+                        ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-600'
+                        : 'border-sand text-clay hover:border-terracotta-300'
+                    }`}
+                  >
+                    {label}
+                  </motion.button>
+                ))}
+              </div>
+              {fieldError('porte')}
+            </fieldset>
           </div>
 
           <div>
@@ -222,8 +236,14 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
             <strong className="text-ink">{summary.time}</strong>
           </p>
 
+          {errors.envio && (
+            <p role="alert" className="text-sm font-semibold text-red-500">
+              {errors.envio}
+            </p>
+          )}
+
           <Button type="submit" loading={sending} className="w-full sm:w-auto sm:self-end">
-            {sending ? 'Enviando…' : 'Confirmar agendamento'}
+            {sending ? 'Enviando…' : 'Enviar pedido de agendamento'}
           </Button>
         </motion.form>
       )}

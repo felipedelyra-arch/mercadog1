@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Bath, ShoppingBag, Siren, Stethoscope } from 'lucide-react'
+import { Bath, Cross, ShoppingBag, Siren, Stethoscope, Syringe } from 'lucide-react'
 import { fadeUp, staggerContainer } from '../animations/variants'
 import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../config/whatsapp'
 
@@ -23,7 +23,7 @@ export default function TopActions() {
     {
       icon: Stethoscope,
       label: 'Consulta médica',
-      hint: 'Vacinas, exames e cirurgias',
+      hint: 'Exames, ultrassom e raio X',
       onClick: () => navigate('/consultas'),
     },
     {
@@ -38,6 +38,18 @@ export default function TopActions() {
       hint: 'Ração e acessórios',
       onClick: () => navigate('/loja'),
     },
+    {
+      icon: Syringe,
+      label: 'Vacinas',
+      hint: 'Carteirinha sempre em dia',
+      onClick: () => navigate('/consultas', { state: { consultaId: 'vacinas' } }),
+    },
+    {
+      icon: Cross,
+      label: 'Cirurgias',
+      hint: 'Avaliação e pós-operatório',
+      onClick: () => navigate('/consultas', { state: { consultaId: 'cirurgias' } }),
+    },
   ]
 
   return (
@@ -46,7 +58,7 @@ export default function TopActions() {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 gap-3 lg:grid-cols-4"
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3"
       >
         {ACTIONS.map(({ icon: Icon, label, hint, onClick, href, emergency }) => {
           const base =

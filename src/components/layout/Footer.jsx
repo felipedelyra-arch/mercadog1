@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
-import { AtSign, Clock, Mail, MapPin, Phone } from 'lucide-react'
+import { Bath, Clock, Mail, MapPin, Phone } from 'lucide-react'
 import Logo from '../ui/Logo'
+import FacebookIcon from '../ui/FacebookIcon'
+import InstagramIcon from '../ui/InstagramIcon'
+import WhatsAppIcon from '../ui/WhatsAppIcon'
 import { SITE } from '../../config/site'
 import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../../config/whatsapp'
 
@@ -8,6 +11,18 @@ const FOOTER_LINKS = [
   { to: '/consultas', label: 'Consultas veterinárias' },
   { to: '/agendamento', label: 'Agendar banho e tosa' },
   { to: '/loja', label: 'Loja de produtos' },
+]
+
+/** Redes sociais + WhatsApp. O WhatsApp pisca para puxar o clique. */
+const SOCIALS = [
+  { icon: InstagramIcon, label: 'Instagram do Mercadog', href: SITE.instagram },
+  { icon: FacebookIcon, label: 'Facebook do Mercadog', href: SITE.facebook },
+  {
+    icon: WhatsAppIcon,
+    label: 'WhatsApp do Mercadog',
+    href: buildWhatsAppUrl(WHATSAPP_NUMBERS.atendimento, WHATSAPP_MESSAGES.geral),
+    blink: true,
+  },
 ]
 
 export default function Footer() {
@@ -18,24 +33,26 @@ export default function Footer() {
         <div className="flex flex-col gap-3">
           <Logo />
           <p className="max-w-xs text-sm text-clay">{SITE.tagline}.</p>
-          <div className="flex gap-4">
-            <a
-              href={SITE.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-terracotta-600 hover:text-terracotta-500"
-            >
-              <AtSign size={16} aria-hidden="true" /> @mercadogpetshop
-            </a>
-            <a
-              href={SITE.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-terracotta-600 hover:text-terracotta-500"
-            >
-              <AtSign size={16} aria-hidden="true" /> Facebook
-            </a>
+          <div className="mt-1 flex items-center gap-3">
+            {SOCIALS.map(({ icon: Icon, label, href, blink }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                title={label}
+                className={`grid size-10 place-items-center rounded-full transition-colors ${
+                  blink
+                    ? 'blink-whatsapp bg-[#25D366] text-white hover:bg-[#1fb855]'
+                    : 'bg-terracotta-100 text-terracotta-600 hover:bg-terracotta-200'
+                }`}
+              >
+                <Icon size={18} />
+              </a>
+            ))}
           </div>
+          <p className="text-sm text-clay">@mercadogpetshop</p>
         </div>
 
         {/* Navegação */}
@@ -75,6 +92,15 @@ export default function Footer() {
             <Phone size={16} className="shrink-0 text-terracotta-500" aria-hidden="true" />
             {SITE.phone}
           </p>
+          <a
+            href={buildWhatsAppUrl(WHATSAPP_NUMBERS.banhoTosa, WHATSAPP_MESSAGES.banhoTosa)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-fit items-center gap-2 hover:text-terracotta-600"
+          >
+            <Bath size={16} className="shrink-0 text-terracotta-500" aria-hidden="true" />
+            Banho e tosa: {SITE.phoneBanhoTosa}
+          </a>
           <p className="flex items-center gap-2">
             <Mail size={16} className="shrink-0 text-terracotta-500" aria-hidden="true" />
             {SITE.email}
@@ -92,8 +118,12 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-sand py-4 text-center text-xs text-clay">
-        © {new Date().getFullYear()} {SITE.name} · Feito com carinho para o seu pet 🐾
+      <div className="flex flex-col items-center gap-1 border-t border-sand py-4 text-center text-xs text-clay">
+        <p>© {new Date().getFullYear()} {SITE.name} · Feito com carinho para o seu pet 🐾</p>
+        <p>
+          Site desenvolvido por{' '}
+          <span className="font-semibold text-terracotta-600">Fluxo Tech</span>
+        </p>
       </div>
     </footer>
   )

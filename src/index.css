@@ -70,8 +70,26 @@
   }
 }
 
+/* Ícone do WhatsApp piscando no rodapé — atrai o clique sem gritar. */
+@utility blink-whatsapp {
+  animation: blink-whatsapp 1.6s ease-in-out infinite;
+}
+
+@keyframes blink-whatsapp {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgb(37 211 102 / 0.55);
+  }
+  50% {
+    opacity: 0.55;
+    box-shadow: 0 0 0 8px rgb(37 211 102 / 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .pulse-emergency {
+  .pulse-emergency,
+  .blink-whatsapp {
     animation: none;
   }
 }

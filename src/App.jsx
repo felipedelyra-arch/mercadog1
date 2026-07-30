@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import Agendamento from './pages/Agendamento'
 import Consultas from './pages/Consultas'
 import Loja from './pages/Loja'
+import ConfirmarAgendamento from './pages/ConfirmarAgendamento'
 import NotFound from './pages/NotFound'
 
 /**
@@ -23,6 +24,8 @@ function AnimatedRoutes() {
         <Route path="/agendamento" element={<Agendamento />} />
         <Route path="/consultas" element={<Consultas />} />
         <Route path="/loja" element={<Loja />} />
+        {/* Link que a clínica recebe no WhatsApp para confirmar o horário */}
+        <Route path="/a/:token" element={<ConfirmarAgendamento />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
