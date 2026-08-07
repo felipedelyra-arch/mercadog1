@@ -33,15 +33,18 @@ const VARIANTS = {
   primary:
     'bg-terracotta-500 text-white hover:bg-terracotta-600 shadow-warm',
   outline:
-    'border-2 border-terracotta-500 text-terracotta-600 hover:bg-terracotta-50',
+    'border border-terracotta-500 text-terracotta-600 hover:bg-terracotta-50 hover:border-terracotta-600',
   ghost: 'text-terracotta-600 hover:bg-terracotta-50',
-  whatsapp: 'bg-[#25D366] text-white hover:bg-[#1fb457] shadow-warm',
+  /* Verde escuro (não o #25D366 da marca): com texto branco o verde claro
+     fica em 2:1 de contraste e reprova em qualquer teste de leitura. */
+  whatsapp: 'bg-whatsapp text-white hover:bg-whatsapp-dark shadow-warm',
 }
 
+/* Todos os tamanhos respeitam a área mínima de toque de 44px no celular. */
 const SIZES = {
-  sm: 'px-4 py-2 text-sm',
-  md: 'px-6 py-3 text-base',
-  lg: 'px-8 py-4 text-lg',
+  sm: 'min-h-11 px-4 py-2 text-sm',
+  md: 'min-h-12 px-6 py-3 text-[0.9375rem]',
+  lg: 'min-h-13 px-6 py-3.5 text-base sm:px-8 sm:py-4 sm:text-lg',
 }
 
 const MOTION_PROPS = {
@@ -70,6 +73,7 @@ export default function Button({
 
   const classes = [
     'inline-flex items-center justify-center gap-2 rounded-full font-semibold',
+    'text-center leading-tight tracking-[0.005em]',
     'cursor-pointer select-none transition-colors duration-200',
     'disabled:pointer-events-none disabled:opacity-60',
     VARIANTS[variant],

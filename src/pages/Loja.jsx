@@ -9,7 +9,7 @@ import { CardSkeleton } from '../components/ui/Skeleton'
 import { staggerContainer } from '../animations/variants'
 import { useFetch } from '../hooks/useFetch'
 import { getProducts } from '../services/api'
-import { PRODUCT_CATEGORIES } from '../data/products'
+import { PRODUCT_CATEGORIES, isAvailable } from '../data/products'
 
 const ALL = 'todos'
 
@@ -26,11 +26,14 @@ export default function Loja() {
   const filtered = useMemo(() => {
     if (!products) return []
     const q = query.trim().toLowerCase()
-    return products.filter(
-      (p) =>
-        (category === ALL || p.categoria === category) &&
-        (!q || p.nome.toLowerCase().includes(q)),
-    )
+    return products
+      .filter(
+        (p) =>
+          (category === ALL || p.categoria === category) &&
+          (!q || p.nome.toLowerCase().includes(q)),
+      )
+      // fora de estoque desce para o fim: quem chega vê primeiro o que dá para pedir
+      .sort((a, b) => Number(isAvailable(b)) - Number(isAvailable(a)))
   }, [products, category, query])
 
   const chips = [{ id: ALL, label: 'Todos' }, ...PRODUCT_CATEGORIES]
@@ -45,8 +48,10 @@ export default function Loja() {
           align="left"
         />
 
-        {/* Busca + filtro por categoria */}
-        <div className="flex flex-col gap-4">
+        {/* Busca + filtro por categoria.
+            Grudam abaixo da navbar ao rolar: no celular dá para trocar o filtro
+            sem voltar ao topo da lista. */}
+        <div className="sticky top-[4.125rem] z-30 -mx-4 flex flex-col gap-3 border-b border-sand bg-white/92 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6 sm:py-4">
           <label className="relative block max-w-md">
             <span className="sr-only">Buscar produto</span>
             <Search
@@ -59,11 +64,15 @@ export default function Loja() {
               placeholder="Buscar produto…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-full border-2 border-sand bg-white py-3 pr-4 pl-11 text-sm text-ink placeholder:text-clay/60 focus:border-terracotta-500 focus:outline-none"
+              className="tap w-full rounded-full border border-sand-dark bg-white py-3 pr-4 pl-11 text-ink placeholder:text-clay/60 transition-colors focus:border-terracotta-500 focus:outline-none"
             />
           </label>
 
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filtrar por categoria">
+          <div
+            className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0"
+            role="tablist"
+            aria-label="Filtrar por categoria"
+          >
             {chips.map(({ id, label }) => {
               const active = category === id
               return (
@@ -73,8 +82,10 @@ export default function Loja() {
                   role="tab"
                   aria-selected={active}
                   onClick={() => setCategory(id)}
-                  className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                    active ? 'text-white' : 'bg-cream text-clay hover:bg-terracotta-50'
+                  className={`relative min-h-10 shrink-0 rounded-full px-4 text-sm font-semibold transition-colors ${
+                    active
+                      ? 'text-white'
+                      : 'border border-sand bg-cream text-clay hover:border-terracotta-200 hover:bg-terracotta-50'
                   }`}
                 >
                   {active && (
@@ -91,9 +102,16 @@ export default function Loja() {
           </div>
         </div>
 
+        {/* Quantos produtos o filtro deixou — evita a sensação de lista "cortada" */}
+        {!loading && (
+          <p aria-live="polite" className="-mt-3 text-xs font-semibold text-clay">
+            {filtered.length} {filtered.length === 1 ? 'produto' : 'produtos'}
+          </p>
+        )}
+
         {/* Grid de produtos */}
         {loading ? (
-          <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3.5 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }, (_, i) => (
               <CardSkeleton key={i} />
             ))}
@@ -115,7 +133,7 @@ export default function Loja() {
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4"
+            className="grid grid-cols-2 gap-3.5 sm:gap-5 md:grid-cols-3 lg:grid-cols-4"
           >
             <AnimatePresence mode="popLayout">
               {filtered.map((product) => (

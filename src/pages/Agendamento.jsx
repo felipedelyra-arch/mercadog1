@@ -18,7 +18,7 @@ export default function Agendamento() {
 
   return (
     <PageWrapper>
-      <div className="bg-glow mx-auto flex max-w-6xl flex-col gap-12 px-4 py-12 sm:px-6">
+      <div className="bg-glow mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 sm:gap-12 sm:px-6 sm:py-12">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading
             eyebrow="Banho e tosa"
@@ -29,7 +29,7 @@ export default function Agendamento() {
           <Button
             variant="whatsapp"
             href={buildWhatsAppUrl(WHATSAPP_NUMBERS.banhoTosa, WHATSAPP_MESSAGES.banhoTosa)}
-            className="shrink-0"
+            className="w-full shrink-0 sm:w-auto"
           >
             <WhatsAppIcon size={18} aria-hidden="true" />
             {SITE.phoneBanhoTosa}

@@ -23,7 +23,7 @@ const retornoTutor = (booking, status) =>
       `• ${booking.item_nome}\n` +
       `• ${booking.data_label} às ${booking.horario}\n` +
       `• Pet: ${booking.pet}\n` +
-      `Protocolo ${booking.protocolo}. Até lá! 🐾`
+      `Protocolo ${booking.protocolo}. Até lá!`
     : `Olá, ${booking.tutor}! Aqui é do Mercadog, sobre o protocolo ${booking.protocolo} ` +
       `(${booking.item_nome}, ${booking.data_label} às ${booking.horario}).\n` +
       `Precisamos remarcar esse horário. Qual outro dia fica bom para você?`
@@ -98,7 +98,7 @@ export default function ConfirmarAgendamento() {
             variants={scaleIn}
             initial="hidden"
             animate="visible"
-            className="flex flex-col gap-5 rounded-card border border-sand bg-white p-6 shadow-warm sm:p-8"
+            className="flex flex-col gap-5 rounded-card border border-sand bg-white p-5 shadow-warm sm:p-8"
           >
             <div>
               <p className="text-xs font-bold tracking-wide text-terracotta-600 uppercase">
@@ -169,7 +169,7 @@ export default function ConfirmarAgendamento() {
                     setPin(e.target.value)
                     setErro(null)
                   }}
-                  className="w-full rounded-xl border-2 border-sand bg-white px-4 py-3 text-sm text-ink transition-colors focus:border-terracotta-500 focus:outline-none"
+                  className="w-full rounded-tile border border-sand-dark bg-white px-4 py-3 text-ink transition-colors focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 focus:outline-none"
                 />
                 {erro && (
                   <p role="alert" className="text-sm font-semibold text-red-500">

@@ -12,7 +12,7 @@ const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURICom
 /** Localidade + horários: onde encontrar a loja e a clínica 24h. */
 export default function LocationSection() {
   return (
-    <section aria-label="Localização" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <section aria-label="Localização" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
       <SectionHeading
         eyebrow="Onde estamos"
         title="Fácil de chegar, difícil de esquecer"
@@ -21,9 +21,9 @@ export default function LocationSection() {
       <motion.div
         variants={staggerContainer}
         {...viewportProps}
-        className="mt-10 grid gap-5 sm:grid-cols-3"
+        className="mt-10 grid gap-3.5 sm:grid-cols-3 sm:gap-5"
       >
-        <motion.div variants={fadeUp} className="flex items-start gap-4 rounded-card bg-white p-6 shadow-warm">
+        <motion.div variants={fadeUp} className="flex items-start gap-4 rounded-card border border-sand bg-white p-5 shadow-warm sm:p-6">
           <span className="grid size-12 shrink-0 place-items-center rounded-arch bg-terracotta-100 text-terracotta-600">
             <MapPin size={22} aria-hidden="true" />
           </span>
@@ -33,7 +33,7 @@ export default function LocationSection() {
           </div>
         </motion.div>
 
-        <motion.div variants={fadeUp} className="flex items-start gap-4 rounded-card bg-white p-6 shadow-warm">
+        <motion.div variants={fadeUp} className="flex items-start gap-4 rounded-card border border-sand bg-white p-5 shadow-warm sm:p-6">
           <span className="grid size-12 shrink-0 place-items-center rounded-arch bg-terracotta-100 text-terracotta-600">
             <Clock size={22} aria-hidden="true" />
           </span>
@@ -45,7 +45,7 @@ export default function LocationSection() {
           </div>
         </motion.div>
 
-        <motion.div variants={fadeUp} className="flex items-start gap-4 rounded-card bg-white p-6 shadow-warm">
+        <motion.div variants={fadeUp} className="flex items-start gap-4 rounded-card border border-sand bg-white p-5 shadow-warm sm:p-6">
           <span className="grid size-12 shrink-0 place-items-center rounded-arch bg-terracotta-100 text-terracotta-600">
             <Phone size={22} aria-hidden="true" />
           </span>
@@ -73,7 +73,7 @@ export default function LocationSection() {
       </motion.div>
 
       <motion.div variants={fadeUp} {...viewportProps} className="mt-6 text-center">
-        <Button href={MAPS_URL} variant="outline">
+        <Button href={MAPS_URL} variant="outline" className="w-full sm:w-auto">
           <Navigation size={16} aria-hidden="true" />
           Abrir rota no Google Maps
         </Button>

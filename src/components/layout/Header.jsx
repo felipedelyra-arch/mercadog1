@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import {Clock, MapPin, Menu, Phone, Siren, X} from 'lucide-react'
+import { Clock, MapPin, Menu, Phone, Siren, X } from 'lucide-react'
 import Logo from '../ui/Logo'
 import Button from '../ui/Button'
 import { EASE, staggerContainer, fadeUp } from '../../animations/variants'
@@ -17,12 +17,14 @@ const NAV_LINKS = [
 ]
 
 /**
- * Navbar fixa no topo, escura (inspiração PetsStar):
- * logo à esquerda, links centrais com sublinhado animado, CTA à direita.
- * No mobile o hambúrguer abre um drawer branco pela esquerda.
+ * Navbar fixa no topo, escura: logo à esquerda, links centrais com sublinhado
+ * animado, CTA à direita. No mobile ficam visíveis o botão de emergência
+ * (o motivo nº 1 de alguém abrir o site com pressa) e o hambúrguer, que
+ * abre um drawer branco pela esquerda.
  */
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const location = useLocation()
   const toggleRef = useRef(null)
 
@@ -30,6 +32,14 @@ export default function Header() {
   useEffect(() => {
     setMenuOpen(false)
   }, [location.pathname])
+
+  // Elevação da navbar só depois de sair do topo — dá profundidade sem peso
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   // Esc fecha + trava o scroll do body enquanto o drawer está aberto
   useEffect(() => {
@@ -48,14 +58,33 @@ export default function Header() {
     }
   }, [menuOpen])
 
+  const emergencyUrl = buildWhatsAppUrl(
+    WHATSAPP_NUMBERS.veterinario,
+    WHATSAPP_MESSAGES.clinica24h,
+  )
+
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 bg-ink/95 shadow-warm backdrop-blur-md">
+      <header
+        className={`fixed inset-x-0 top-0 z-50 bg-ink/95 backdrop-blur-md transition-shadow duration-300 ${
+          scrolled ? 'shadow-warm-lg' : 'shadow-none'
+        }`}
+      >
+        {/* Fio terracota no topo: assinatura da marca sem ocupar espaço */}
+        <span
+          aria-hidden="true"
+          className="block h-0.5 w-full bg-gradient-to-r from-terracotta-600 via-terracotta-400 to-terracotta-600"
+        />
+
         {/* Largura total: logo encostada à esquerda da tela */}
-        <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-5">
+        <div className="flex h-16 items-center justify-between gap-3 px-3 sm:px-5">
           {/* Logo branca direto sobre o fundo escuro, sem chip */}
-          <Link to="/" aria-label="Mercadog — página inicial" className="shrink-0">
-            <Logo className="h-12" variant="light" />
+          <Link
+            to="/"
+            aria-label="Mercadog — página inicial"
+            className="shrink-0 rounded-lg transition-opacity hover:opacity-85"
+          >
+            <Logo className="h-10 sm:h-12" variant="light" />
           </Link>
 
           {/* Links — desktop */}
@@ -66,7 +95,7 @@ export default function Header() {
                   <>
                     <span
                       className={`text-sm font-semibold transition-colors ${
-                        isActive ? 'text-white' : 'text-white/60 hover:text-white'
+                        isActive ? 'text-white' : 'text-white/75 hover:text-white'
                       }`}
                     >
                       {label}
@@ -91,37 +120,54 @@ export default function Header() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Falar no WhatsApp"
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.92 }}
-              className="grid size-9 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20"
+              className="grid size-10 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
             >
-              <WhatsAppIcon size={17} aria-hidden="true" />
+              <WhatsAppIcon size={18} aria-hidden="true" />
             </motion.a>
             <Button
               size="sm"
-              href={buildWhatsAppUrl(WHATSAPP_NUMBERS.veterinario, WHATSAPP_MESSAGES.clinica24h)}
-              className="pulse-emergency !bg-terracotta-600 hover:!bg-terracotta-500"
+              href={emergencyUrl}
+              className="pulse-emergency !bg-terracotta-500 hover:!bg-terracotta-400"
             >
-              <Siren size={15} aria-hidden="true" />
+              <Siren size={16} aria-hidden="true" />
               Emergência 24h
             </Button>
-            <Button to="/agendamento" size="sm" variant="outline" className="!border-white/40 !text-white hover:!bg-white/10">
+            <Button
+              to="/agendamento"
+              size="sm"
+              variant="outline"
+              className="!border-white/35 !text-white hover:!border-white/60 hover:!bg-white/10"
+            >
               Agende um horário
             </Button>
           </div>
 
-          {/* Hambúrguer — mobile */}
-          <button
-            ref={toggleRef}
-            type="button"
-            className="grid size-11 place-items-center rounded-full text-white transition-colors hover:bg-white/10 md:hidden"
-            aria-expanded={menuOpen}
-            aria-controls="menu-mobile"
-            aria-label="Abrir menu"
-            onClick={() => setMenuOpen(true)}
-          >
-            <Menu size={24} />
-          </button>
+          {/* Ações — mobile: emergência sempre à vista, depois o menu */}
+          <div className="flex items-center gap-1.5 md:hidden">
+            <motion.a
+              href={emergencyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileTap={{ scale: 0.95 }}
+              className="pulse-emergency flex h-11 items-center gap-1.5 rounded-full bg-terracotta-500 pr-3.5 pl-3 text-[0.8125rem] font-bold text-white"
+            >
+              <Siren size={16} aria-hidden="true" />
+              Emergência
+            </motion.a>
+            <button
+              ref={toggleRef}
+              type="button"
+              className="tap grid size-11 place-items-center rounded-full text-white transition-colors hover:bg-white/10"
+              aria-expanded={menuOpen}
+              aria-controls="menu-mobile"
+              aria-label="Abrir menu"
+              onClick={() => setMenuOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -135,7 +181,7 @@ export default function Header() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
               onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 z-[60] bg-ink/40 backdrop-blur-[2px] md:hidden"
+              className="fixed inset-0 z-[60] bg-ink/50 backdrop-blur-[2px] md:hidden"
               aria-hidden="true"
             />
             <motion.aside
@@ -147,9 +193,9 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ duration: 0.35, ease: EASE }}
-              className="fixed inset-y-0 left-0 z-[70] flex w-80 max-w-[85vw] flex-col bg-white shadow-warm-lg md:hidden"
+              className="fixed inset-y-0 left-0 z-[70] flex w-[19rem] max-w-[86vw] flex-col bg-white shadow-warm-xl md:hidden"
             >
-              <div className="flex items-center justify-between border-b border-sand px-5 py-4">
+              <div className="flex items-center justify-between border-b border-sand px-5 py-3.5">
                 <Logo className="h-10" />
                 <button
                   type="button"
@@ -159,7 +205,7 @@ export default function Header() {
                     setMenuOpen(false)
                     toggleRef.current?.focus()
                   }}
-                  className="grid size-10 place-items-center rounded-full text-ink transition-colors hover:bg-terracotta-50"
+                  className="tap grid size-11 place-items-center rounded-full text-ink transition-colors hover:bg-terracotta-50"
                 >
                   <X size={22} />
                 </button>
@@ -178,7 +224,7 @@ export default function Header() {
                       to={to}
                       end={to === '/'}
                       className={({ isActive }) =>
-                        `block rounded-xl px-4 py-3.5 font-display text-lg font-semibold transition-colors ${
+                        `flex min-h-13 items-center rounded-xl px-4 font-display text-lg font-semibold transition-colors ${
                           isActive
                             ? 'bg-terracotta-50 text-terracotta-600'
                             : 'text-ink hover:bg-cream'
@@ -190,21 +236,14 @@ export default function Header() {
                   </motion.div>
                 ))}
 
-                <motion.div variants={fadeUp} className="mt-4">
-                  <Button
-                    href={buildWhatsAppUrl(WHATSAPP_NUMBERS.veterinario, WHATSAPP_MESSAGES.clinica24h)}
-                    className="w-full !bg-terracotta-600 hover:!bg-terracotta-500"
-                  >
+                <motion.div variants={fadeUp} className="mt-5 flex flex-col gap-2.5">
+                  <Button href={emergencyUrl} className="w-full">
                     <Siren size={18} aria-hidden="true" />
                     Emergência 24h
                   </Button>
-                </motion.div>
-                <motion.div variants={fadeUp} className="mt-2">
                   <Button to="/agendamento" variant="outline" className="w-full">
                     Agende um horário
                   </Button>
-                </motion.div>
-                <motion.div variants={fadeUp} className="mt-2">
                   <Button
                     variant="whatsapp"
                     href={buildWhatsAppUrl(WHATSAPP_NUMBERS.atendimento, WHATSAPP_MESSAGES.geral)}
@@ -217,7 +256,7 @@ export default function Header() {
               </motion.nav>
 
               {/* Contato resumido */}
-              <div className="flex flex-col gap-2 border-t border-sand bg-cream px-5 py-4 text-sm text-clay">
+              <div className="flex flex-col gap-2 border-t border-sand bg-cream px-5 py-4 pb-safe text-sm text-clay">
                 <p className="flex items-start gap-2">
                   <MapPin size={15} className="mt-0.5 shrink-0 text-terracotta-500" aria-hidden="true" />
                   {SITE.address}

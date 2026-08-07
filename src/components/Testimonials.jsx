@@ -24,7 +24,7 @@ const TESTIMONIALS = [
 
 export default function Testimonials() {
   return (
-    <section aria-label="Depoimentos" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <section aria-label="Depoimentos" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
       <SectionHeading
         eyebrow="Depoimentos"
         title="Quem já passou por aqui"
@@ -33,17 +33,17 @@ export default function Testimonials() {
       <motion.div
         variants={staggerContainer}
         {...viewportProps}
-        className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3"
       >
         {TESTIMONIALS.map(({ name, pet, text }) => (
           <motion.figure
             key={name}
             variants={fadeUp}
-            className="flex flex-col gap-4 rounded-card bg-white p-6 shadow-warm"
+            className="flex flex-col gap-3.5 rounded-card border border-sand bg-white p-5 shadow-warm sm:p-6"
           >
             <Quote size={22} className="text-terracotta-300" aria-hidden="true" />
             <blockquote className="flex-1 text-sm leading-relaxed text-clay">“{text}”</blockquote>
-            <figcaption className="flex items-center gap-3">
+            <figcaption className="flex items-center gap-3 border-t border-sand pt-3.5">
               {/* Avatar com as iniciais do tutor */}
               <span
                 aria-hidden="true"

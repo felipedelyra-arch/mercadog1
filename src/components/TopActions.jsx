@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Bath, Cross, ShoppingBag, Siren, Stethoscope, Syringe } from 'lucide-react'
+import { Bath, ChevronRight, Cross, ShoppingBag, Siren, Stethoscope, Syringe } from 'lucide-react'
 import { fadeUp, staggerContainer } from '../animations/variants'
 import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../config/whatsapp'
 
 /**
  * Barra de ações no TOPO da home: em uma emergência ninguém tem
  * paciência para procurar — os serviços principais ficam a um toque
- * assim que a página abre, com a emergência 24h em primeiro e em destaque.
+ * assim que a página abre, com a emergência 24h ocupando a linha inteira
+ * no celular (é o caminho mais urgente, não pode disputar espaço).
  */
 export default function TopActions() {
   const navigate = useNavigate()
@@ -58,45 +59,54 @@ export default function TopActions() {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 gap-3 sm:grid-cols-3"
+        className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3"
       >
         {ACTIONS.map(({ icon: Icon, label, hint, onClick, href, emergency }) => {
-          const base =
-            'flex w-full items-center gap-3 rounded-card px-4 py-3.5 text-left shadow-warm ' +
-            'transition-colors ' +
-            (emergency
-              ? 'pulse-emergency bg-terracotta-600 text-white hover:bg-terracotta-500'
-              : 'bg-white text-ink hover:bg-terracotta-50')
+          const base = [
+            'group tap flex w-full items-center gap-3 rounded-card px-3.5 py-3 text-left sm:px-4 sm:py-3.5',
+            'transition-colors duration-200',
+            emergency
+              ? 'pulse-emergency col-span-2 bg-terracotta-500 text-white shadow-warm-lg hover:bg-terracotta-600 sm:col-span-1'
+              : 'border border-sand bg-white text-ink shadow-warm hover:border-terracotta-200 hover:bg-terracotta-50',
+          ].join(' ')
+
           const inner = (
             <>
               <span
-                className={`grid size-11 shrink-0 place-items-center rounded-full ${
-                  emergency
-                    ? 'bg-white/15 text-white'
-                    : 'bg-terracotta-100 text-terracotta-600'
+                className={`grid size-11 shrink-0 place-items-center rounded-tile transition-transform duration-500 ease-out group-hover:-rotate-6 motion-reduce:transition-none ${
+                  emergency ? 'bg-white/20 text-white' : 'bg-terracotta-100 text-terracotta-600'
                 }`}
               >
                 <Icon size={20} aria-hidden="true" />
               </span>
-              <span className="min-w-0">
-                <span className="block font-display text-sm font-semibold sm:text-base">
+              <span className="min-w-0 flex-1">
+                <span className="block font-display text-[0.9375rem] leading-tight font-semibold sm:text-base">
                   {label}
                 </span>
                 <span
-                  className={`block truncate text-xs ${
+                  className={`mt-0.5 block truncate text-xs ${
                     emergency ? 'text-terracotta-100' : 'text-clay'
                   }`}
                 >
                   {hint}
                 </span>
               </span>
+              <ChevronRight
+                size={16}
+                aria-hidden="true"
+                className={`shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 ${
+                  emergency ? 'text-white/70' : 'text-terracotta-300'
+                }`}
+              />
             </>
           )
+
           const motionProps = {
             variants: fadeUp,
-            whileHover: { scale: 1.03, y: -2 },
-            whileTap: { scale: 0.97 },
+            whileHover: { y: -2 },
+            whileTap: { scale: 0.98 },
           }
+
           return href ? (
             <motion.a
               key={label}

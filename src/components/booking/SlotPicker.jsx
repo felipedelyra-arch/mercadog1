@@ -49,7 +49,7 @@ export default function SlotPicker({ context = 'servico', onChange }) {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="flex gap-2 overflow-x-auto pb-2"
+          className="scrollbar-none -mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-2"
           role="listbox"
           aria-label="Dias disponíveis"
         >
@@ -64,13 +64,13 @@ export default function SlotPicker({ context = 'servico', onChange }) {
                 role="option"
                 aria-selected={active}
                 onClick={() => pickDay(day)}
-                className={`flex w-16 shrink-0 flex-col items-center rounded-2xl border-2 px-2 py-2.5 transition-colors ${
+                className={`flex w-[4.25rem] shrink-0 snap-start flex-col items-center justify-center gap-0.5 rounded-tile border px-2 py-3 transition-colors ${
                   active
-                    ? 'border-terracotta-500 bg-terracotta-500 text-white'
+                    ? 'border-terracotta-500 bg-terracotta-500 text-white shadow-warm'
                     : 'border-sand bg-white text-clay hover:border-terracotta-300'
                 }`}
               >
-                <span className="text-[11px] font-bold uppercase">{day.weekday}</span>
+                <span className="text-[11px] font-bold tracking-wide uppercase">{day.weekday}</span>
                 <span className={`text-sm font-semibold ${active ? '' : 'text-ink'}`}>
                   {day.label}
                 </span>
@@ -103,7 +103,7 @@ export default function SlotPicker({ context = 'servico', onChange }) {
                 variants={staggerContainer}
                 initial="hidden"
                 animate="visible"
-                className="grid grid-cols-3 gap-2 sm:grid-cols-5"
+                className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-2.5"
                 role="listbox"
                 aria-label="Horários disponíveis"
               >
@@ -118,10 +118,10 @@ export default function SlotPicker({ context = 'servico', onChange }) {
                       role="option"
                       aria-selected={active}
                       onClick={() => pickTime(time)}
-                      className={`rounded-full border-2 py-2 text-sm font-semibold transition-colors ${
+                      className={`min-h-11 rounded-full border text-sm font-semibold transition-colors ${
                         active
-                          ? 'border-terracotta-500 bg-terracotta-500 text-white'
-                          : 'border-sand bg-white text-ink hover:border-terracotta-300'
+                          ? 'border-terracotta-500 bg-terracotta-500 text-white shadow-warm'
+                          : 'border-sand bg-white text-ink hover:border-terracotta-300 hover:bg-terracotta-50'
                       }`}
                     >
                       {time}

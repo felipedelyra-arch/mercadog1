@@ -20,7 +20,7 @@ export default function Consultas() {
 
   return (
     <PageWrapper>
-      <div className="bg-glow mx-auto flex max-w-6xl flex-col gap-12 px-4 py-12 sm:px-6">
+      <div className="bg-glow mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 sm:gap-12 sm:px-6 sm:py-12">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading
             eyebrow="Clínica veterinária 24h"
@@ -31,7 +31,7 @@ export default function Consultas() {
           <Button
             variant="whatsapp"
             href={buildWhatsAppUrl(WHATSAPP_NUMBERS.veterinario, WHATSAPP_MESSAGES.clinica24h)}
-            className="shrink-0"
+            className="w-full shrink-0 sm:w-auto"
           >
             <WhatsAppIcon size={18} aria-hidden="true" />
             Clínica 24h · Dr. Wilson

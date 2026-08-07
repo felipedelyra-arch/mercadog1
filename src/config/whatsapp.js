@@ -21,7 +21,7 @@ const confirmLine = (link) =>
   link ? `\n\n— Equipe Mercadog, confirmar ou remarcar aqui:\n${link}` : ''
 
 export const WHATSAPP_MESSAGES = {
-  geral: 'Olá! Vim pelo site do Mercadog e gostaria de tirar uma dúvida. 🐾',
+  geral: 'Olá! Vim pelo site do Mercadog e gostaria de tirar uma dúvida.',
 
   produto: (nomeProduto) =>
     `Olá! Vi o produto "${nomeProduto}" no site do Mercadog e gostaria de saber mais.`,
@@ -55,7 +55,7 @@ export const WHATSAPP_MESSAGES = {
     'Olá! Vim pelo site do Mercadog e gostaria de um atendimento da loja.',
 
   banhoTosa:
-    'Olá! Vim pelo site do Mercadog e gostaria de agendar banho e tosa para o meu pet. 🛁🐾',
+    'Olá! Vim pelo site do Mercadog e gostaria de agendar banho e tosa para o meu pet.',
 }
 
 /**

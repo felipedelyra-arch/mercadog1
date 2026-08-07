@@ -19,22 +19,22 @@ export default function Marquee() {
   const strip = (hidden) => (
     <div
       aria-hidden={hidden || undefined}
-      className="flex shrink-0 items-center gap-10 pr-10"
+      className="flex shrink-0 items-center gap-7 pr-7 sm:gap-10 sm:pr-10"
     >
       {ITEMS.map((item) => (
         <span
           key={item}
-          className="flex items-center gap-10 font-display text-lg font-semibold whitespace-nowrap text-terracotta-600"
+          className="flex items-center gap-7 font-display text-sm font-semibold whitespace-nowrap text-terracotta-600 sm:gap-10 sm:text-lg"
         >
           {item}
-          <PawPrint size={16} className="text-terracotta-300" aria-hidden="true" />
+          <PawPrint size={14} className="text-terracotta-300" aria-hidden="true" />
         </span>
       ))}
     </div>
   )
 
   return (
-    <div className="marquee border-y border-sand bg-cream py-4">
+    <div className="marquee fade-edges-x border-y border-sand bg-cream py-3 sm:py-4">
       <div className="marquee-track">
         {strip(false)}
         {strip(true)}

@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import { Check } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { staggerContainer } from '../../animations/variants'
 import { CardSkeleton } from '../ui/Skeleton'
@@ -57,18 +58,21 @@ export default function BookingFlow({
   const stepLabel = (n, text, done) => (
     <div className="mb-4 flex items-center gap-3">
       <span
-        className={`grid size-8 place-items-center rounded-full text-sm font-bold ${
-          done ? 'bg-terracotta-500 text-white' : 'bg-terracotta-100 text-terracotta-600'
+        className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-bold transition-colors ${
+          done
+            ? 'bg-terracotta-500 text-white'
+            : 'border border-terracotta-200 bg-terracotta-50 text-terracotta-600'
         }`}
       >
-        {n}
+        {done ? <Check size={16} aria-hidden="true" /> : n}
       </span>
-      <h2 className="font-display text-xl font-semibold text-ink">{text}</h2>
+      <h2 className="font-display text-lg font-semibold text-ink sm:text-xl">{text}</h2>
+      <span aria-hidden="true" className="h-px flex-1 bg-sand" />
     </div>
   )
 
   return (
-    <div className="flex flex-col gap-12">
+    <div className="flex flex-col gap-10 sm:gap-12">
       {/* Passo 1 — escolha */}
       <section aria-label="Passo 1: escolha">
         {stepLabel(1, kind === 'consulta' ? 'Escolha o tipo de consulta' : 'Escolha o serviço', Boolean(selectedItem))}

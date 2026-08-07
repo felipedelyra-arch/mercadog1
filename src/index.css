@@ -3,44 +3,75 @@
 /*
  * Design tokens do Mercadog.
  * Base branca/off-white com terracota como cor de acento.
- * Tudo que for cor, sombra, raio ou fonte sai daqui — não use valores soltos nos componentes.
+ * Tudo que for cor, sombra, raio, tipografia ou espaçamento sai daqui —
+ * não use valores soltos nos componentes.
  */
 @theme {
-  /* Terracota (primária de destaque) */
-  --color-terracotta-50: #faf1ee;
-  --color-terracotta-100: #f3e3de; /* fundos de tags/badges */
+  /* ---------- Terracota (primária de destaque) ---------- */
+  --color-terracotta-50: #fdf6f4;
+  --color-terracotta-100: #f6e7e2; /* fundos de tags/badges */
   --color-terracotta-200: #e8ccc4;
   --color-terracotta-300: #c97b6a; /* detalhes suaves/estados */
+  --color-terracotta-400: #b85f4c;
   --color-terracotta-500: #a84b3a; /* primária */
   --color-terracotta-600: #8c3b2e; /* hover/ativo */
   --color-terracotta-700: #6e2e24;
+  --color-terracotta-900: #43201a; /* painéis escuros quentes */
 
-  /* Neutros quentes */
+  /* ---------- Neutros quentes ---------- */
   --color-cream: #faf7f5; /* seções alternadas */
   --color-ink: #2e2622; /* texto principal */
-  --color-clay: #6b5d57; /* texto secundário */
-  --color-sand: #efe8e4; /* bordas suaves */
+  --color-clay: #635550; /* texto secundário (contraste 7:1 no branco) */
+  --color-sand: #ebe3de; /* bordas suaves de card (decorativas) */
+  /* Borda de CAMPO de formulário: precisa de 3:1 contra o branco (WCAG 1.4.11),
+     senão o contorno do input some para quem enxerga pouco. */
+  --color-sand-dark: #a08b84;
 
-  /* Tipografia */
+  /* ---------- WhatsApp ----------
+     `whatsapp` é o verde escuro dos BOTÕES com texto branco (contraste AA).
+     `whatsapp-bright` é o verde da marca, usado só em áreas de ícone/realce. */
+  --color-whatsapp: #17803d;
+  --color-whatsapp-dark: #12652f;
+  --color-whatsapp-bright: #25d366;
+
+  /* ---------- Tipografia ---------- */
   --font-display: 'Fraunces Variable', Georgia, serif;
   --font-sans: 'Nunito Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
-  /* Sombras quentes (nunca azuladas) */
-  --shadow-warm: 0 2px 8px -2px rgb(46 38 34 / 0.06), 0 8px 24px -8px rgb(110 46 36 / 0.1);
-  --shadow-warm-lg: 0 4px 12px -4px rgb(46 38 34 / 0.08), 0 20px 44px -12px rgb(110 46 36 / 0.18);
+  /* Escala display fluida: cresce com a viewport sem breakpoints manuais */
+  --text-display-sm: clamp(1.5rem, 1.28rem + 1.1vw, 1.875rem);
+  --text-display-sm--line-height: 1.2;
+  --text-display-md: clamp(1.75rem, 1.35rem + 2vw, 2.5rem);
+  --text-display-md--line-height: 1.15;
+  --text-display-lg: clamp(2.125rem, 1.5rem + 3.1vw, 3.25rem);
+  --text-display-lg--line-height: 1.08;
 
-  /* Raios */
+  /* ---------- Sombras quentes (nunca azuladas) ---------- */
+  --shadow-warm-xs: 0 1px 2px rgb(46 38 34 / 0.05);
+  --shadow-warm: 0 1px 2px rgb(46 38 34 / 0.04), 0 6px 18px -8px rgb(110 46 36 / 0.14);
+  --shadow-warm-lg:
+    0 2px 6px -2px rgb(46 38 34 / 0.06), 0 18px 40px -14px rgb(110 46 36 / 0.22);
+  --shadow-warm-xl:
+    0 4px 10px -4px rgb(46 38 34 / 0.08), 0 32px 64px -20px rgb(110 46 36 / 0.28);
+
+  /* ---------- Raios ---------- */
+  --radius-tile: 0.875rem;
   --radius-card: 1.25rem;
+  --radius-panel: 1.75rem;
 }
 
-/* Assinatura visual: topo em arco (porta de casinha de cachorro). */
+/* ============================================================
+   Utilitários de assinatura visual
+   ============================================================ */
+
+/* Topo em arco (porta de casinha de cachorro). */
 @utility rounded-arch {
   border-radius: calc(infinity * 1px) calc(infinity * 1px) var(--radius-card) var(--radius-card);
 }
 
 /* Texto com gradiente terracota — para a palavra de destaque do slogan. */
 @utility text-gradient {
-  background: linear-gradient(105deg, var(--color-terracotta-500), var(--color-terracotta-300));
+  background: linear-gradient(105deg, var(--color-terracotta-600), var(--color-terracotta-400));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -49,41 +80,82 @@
 /* Brilho radial suave atrás de seções de destaque (profundidade sem poluir). */
 @utility bg-glow {
   background:
-    radial-gradient(60% 50% at 20% 0%, rgb(168 75 58 / 0.07), transparent 70%),
-    radial-gradient(50% 40% at 90% 20%, rgb(201 123 106 / 0.08), transparent 70%);
+    radial-gradient(62% 46% at 12% 0%, rgb(168 75 58 / 0.06), transparent 72%),
+    radial-gradient(48% 38% at 92% 14%, rgb(201 123 106 / 0.07), transparent 72%);
 }
+
+/* Superfície padrão dos cards: branco + hairline + sombra quente. */
+@utility surface {
+  background-color: #fff;
+  border: 1px solid var(--color-sand);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-warm);
+}
+
+/* Área mínima de toque confortável no celular (WCAG 2.5.5 — 44x44). */
+@utility tap {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+
+/* Rolagem horizontal sem barra visível (carrosséis de dia/atalhos). */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Esmaece as bordas de um scroller horizontal — sinaliza que há mais conteúdo. */
+@utility fade-edges-x {
+  mask-image: linear-gradient(to right, transparent, #000 1.25rem, #000 calc(100% - 1.25rem), transparent);
+}
+
+/* Respeita o notch/barra de gestos do iOS em elementos fixos. */
+@utility pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+@utility bottom-safe {
+  bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* ============================================================
+   Animações
+   ============================================================ */
 
 /* Halo pulsante do botão/cartão de emergência — chama o olho sem irritar. */
 @utility pulse-emergency {
-  animation: pulse-emergency 2.4s ease-out infinite;
+  animation: pulse-emergency 2.6s ease-out infinite;
 }
 
 @keyframes pulse-emergency {
   0% {
-    box-shadow: 0 0 0 0 rgb(140 59 46 / 0.45);
+    box-shadow: 0 0 0 0 rgb(140 59 46 / 0.4);
   }
   70% {
-    box-shadow: 0 0 0 14px rgb(140 59 46 / 0);
+    box-shadow: 0 0 0 12px rgb(140 59 46 / 0);
   }
   100% {
     box-shadow: 0 0 0 0 rgb(140 59 46 / 0);
   }
 }
 
-/* Ícone do WhatsApp piscando no rodapé — atrai o clique sem gritar. */
+/* Halo do WhatsApp no rodapé — atrai o clique sem piscar (piscar cansa a vista). */
 @utility blink-whatsapp {
-  animation: blink-whatsapp 1.6s ease-in-out infinite;
+  animation: halo-whatsapp 2.4s ease-out infinite;
 }
 
-@keyframes blink-whatsapp {
-  0%,
-  100% {
-    opacity: 1;
-    box-shadow: 0 0 0 0 rgb(37 211 102 / 0.55);
+@keyframes halo-whatsapp {
+  0% {
+    box-shadow: 0 0 0 0 rgb(23 128 61 / 0.45);
   }
-  50% {
-    opacity: 0.55;
-    box-shadow: 0 0 0 8px rgb(37 211 102 / 0);
+  70% {
+    box-shadow: 0 0 0 10px rgb(23 128 61 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(23 128 61 / 0);
   }
 }
 
@@ -94,12 +166,37 @@
   }
 }
 
+/* ============================================================
+   Base
+   ============================================================ */
+
 @layer base {
   /* Sem scroll-behavior: smooth aqui — a rolagem suave é do Lenis (index.html)
      e os dois juntos conflitam. */
 
+  html {
+    /* `clip` (e não `hidden`) evita criar um contexto de rolagem que quebra
+       position: sticky nos filtros da loja. */
+    overflow-x: clip;
+  }
+
   body {
     @apply bg-white font-sans text-ink antialiased;
+    overflow-x: clip;
+    /* Sem flash cinza ao tocar em links/botões no Android */
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Títulos display: quebra de linha equilibrada e sem hifenização estranha */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 
   /* Estado de foco visível e consistente em todo elemento interativo */
@@ -109,11 +206,37 @@
     border-radius: 4px;
   }
 
+  /* Campos de formulário: 16px no mobile evita o zoom automático do iOS ao focar */
+  input,
+  select,
+  textarea {
+    font-size: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: 0.9375rem;
+    }
+  }
+
   ::selection {
     background: var(--color-terracotta-100);
     color: var(--color-terracotta-700);
   }
+
+  /* Imagens nunca estouram a largura do container no celular */
+  img,
+  svg,
+  video {
+    max-width: 100%;
+  }
 }
+
+/* ============================================================
+   Componentes
+   ============================================================ */
 
 @layer components {
   /* Faixa em loop (Marquee.jsx). Duas cópias do conteúdo + translateX(-50%) = loop perfeito. */
@@ -124,7 +247,7 @@
   .marquee-track {
     display: flex;
     width: max-content;
-    animation: marquee 30s linear infinite;
+    animation: marquee 34s linear infinite;
   }
 
   .marquee:hover .marquee-track {

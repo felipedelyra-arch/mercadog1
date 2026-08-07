@@ -29,10 +29,10 @@ export default function ServiceCard({ item, price, selected = false, onSelect })
       type={interactive ? 'button' : undefined}
       onClick={interactive ? () => onSelect(item) : undefined}
       aria-pressed={interactive ? selected : undefined}
-      className={`group relative flex h-full flex-col gap-3 overflow-hidden rounded-card border-2 bg-white p-6 text-left shadow-warm transition-colors ${
+      className={`group relative flex h-full flex-col gap-3 overflow-hidden rounded-card border bg-white p-5 text-left shadow-warm transition-colors sm:p-6 ${
         selected
-          ? 'border-terracotta-500'
-          : 'border-transparent hover:border-terracotta-200'
+          ? 'border-terracotta-500 ring-1 ring-terracotta-500'
+          : 'border-sand hover:border-terracotta-200'
       } ${interactive ? 'cursor-pointer' : ''}`}
     >
       {/* Spotlight quente seguindo o cursor */}
@@ -57,10 +57,10 @@ export default function ServiceCard({ item, price, selected = false, onSelect })
         <Icon size={24} aria-hidden="true" />
       </span>
 
-      <h3 className="font-display text-xl font-semibold text-ink">{item.nome}</h3>
+      <h3 className="pr-8 font-display text-lg font-semibold text-ink sm:text-xl">{item.nome}</h3>
       <p className="flex-1 text-sm leading-relaxed text-clay">{item.descricao}</p>
 
-      <div className="mt-1 flex items-center justify-between gap-2">
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-sand pt-3">
         <span className="font-display text-lg font-semibold text-terracotta-600">
           {typeof price === 'number' ? (
             formatPrice(price)

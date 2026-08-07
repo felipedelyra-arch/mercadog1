@@ -39,7 +39,7 @@ const FEATURES = [
 
 export default function Features() {
   return (
-    <section aria-label="Tudo que oferecemos" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <section aria-label="Tudo que oferecemos" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
       <SectionHeading
         eyebrow="Mercadog"
         title="Tudo para o seu pet num só lugar"
@@ -48,15 +48,17 @@ export default function Features() {
       <motion.div
         variants={staggerContainer}
         {...viewportProps}
-        className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
+        className="mt-10 grid gap-x-8 gap-y-7 sm:mt-12 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-3"
       >
         {FEATURES.map(({ icon: Icon, title, text }) => (
           <motion.div key={title} variants={fadeUp} className="group flex items-start gap-4">
             <span className="grid size-12 shrink-0 place-items-center rounded-arch bg-terracotta-100 text-terracotta-600 transition-transform duration-500 ease-out group-hover:-rotate-6 group-hover:scale-108 motion-reduce:transition-none">
               <Icon size={22} aria-hidden="true" />
             </span>
-            <div>
-              <h3 className="font-display text-lg font-semibold text-ink">{title}</h3>
+            <div className="min-w-0">
+              <h3 className="font-display text-[1.0625rem] font-semibold text-ink sm:text-lg">
+                {title}
+              </h3>
               <p className="mt-1 text-sm leading-relaxed text-clay">{text}</p>
             </div>
           </motion.div>

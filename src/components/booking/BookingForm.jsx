@@ -55,8 +55,8 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
   }
 
   const inputClass = (field) =>
-    `w-full rounded-xl border-2 bg-white px-4 py-3 text-sm text-ink placeholder:text-clay/60 transition-colors focus:border-terracotta-500 focus:outline-none ${
-      errors[field] ? 'border-red-400' : 'border-sand'
+    `w-full rounded-tile border bg-white px-4 py-3 text-ink placeholder:text-clay/60 transition-colors focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 focus:outline-none ${
+      errors[field] ? 'border-red-500 bg-red-50/40' : 'border-sand-dark'
     }`
 
   const fieldError = (field) =>
@@ -80,7 +80,7 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
           variants={scaleIn}
           initial="hidden"
           animate="visible"
-          className="flex flex-col items-center gap-4 rounded-card border border-sand bg-white p-8 text-center shadow-warm"
+          className="flex flex-col items-center gap-4 rounded-card border border-sand bg-white p-6 text-center shadow-warm sm:p-8"
         >
           <motion.span
             initial={{ scale: 0, rotate: -30 }}
@@ -128,7 +128,7 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
           exit="exit"
           onSubmit={handleSubmit}
           noValidate
-          className="flex flex-col gap-4 rounded-card border border-sand bg-white p-6 shadow-warm sm:p-8"
+          className="flex flex-col gap-4 rounded-card border border-sand bg-white p-4 shadow-warm sm:p-8"
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -202,10 +202,10 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
                       setForm((f) => ({ ...f, porte: f.porte === id ? '' : id }))
                       setErrors((errs) => ({ ...errs, porte: undefined }))
                     }}
-                    className={`flex-1 rounded-xl border-2 py-2.5 text-sm font-semibold transition-colors ${
+                    className={`min-h-11 flex-1 rounded-tile border text-sm font-semibold transition-colors ${
                       form.porte === id
-                        ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-600'
-                        : 'border-sand text-clay hover:border-terracotta-300'
+                        ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-600 ring-1 ring-terracotta-500'
+                        : 'border-sand-dark text-clay hover:border-terracotta-300 hover:bg-terracotta-50'
                     }`}
                   >
                     {label}

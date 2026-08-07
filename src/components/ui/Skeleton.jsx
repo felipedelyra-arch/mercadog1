@@ -14,7 +14,7 @@ export function Skeleton({ className = '' }) {
 /** Skeleton com o formato dos cards de serviço/produto. */
 export function CardSkeleton() {
   return (
-    <div className="rounded-card border border-sand bg-white p-6 shadow-warm">
+    <div className="rounded-card border border-sand bg-white p-5 shadow-warm sm:p-6">
       <Skeleton className="mb-4 size-12 rounded-arch" />
       <Skeleton className="mb-2 h-5 w-2/3" />
       <Skeleton className="mb-1 h-4 w-full" />

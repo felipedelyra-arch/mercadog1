@@ -18,7 +18,9 @@ export default function NotFound() {
         >
           <Dog size={40} aria-hidden="true" />
         </motion.span>
-        <h1 className="font-display text-4xl font-semibold text-ink">Página não encontrada</h1>
+        <h1 className="font-display text-display-lg font-semibold text-ink">
+          Página não encontrada
+        </h1>
         <p className="max-w-sm text-clay">
           Parece que alguém enterrou essa página no quintal. Vamos voltar para o início?
         </p>

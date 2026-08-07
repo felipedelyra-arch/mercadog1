@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Bath, Clock, Mail, MapPin, Phone } from 'lucide-react'
+import { Bath, Clock, Mail, MapPin, PawPrint, Phone } from 'lucide-react'
 import Logo from '../ui/Logo'
 import FacebookIcon from '../ui/FacebookIcon'
 import InstagramIcon from '../ui/InstagramIcon'
@@ -28,7 +28,7 @@ const SOCIALS = [
 export default function Footer() {
   return (
     <footer className="border-t border-sand bg-cream">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:gap-10 sm:px-6 sm:py-12 md:grid-cols-3">
         {/* Identidade */}
         <div className="flex flex-col gap-3">
           <Logo />
@@ -42,9 +42,9 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label={label}
                 title={label}
-                className={`grid size-10 place-items-center rounded-full transition-colors ${
+                className={`grid size-11 place-items-center rounded-full transition-colors ${
                   blink
-                    ? 'blink-whatsapp bg-[#25D366] text-white hover:bg-[#1fb855]'
+                    ? 'blink-whatsapp bg-whatsapp text-white hover:bg-whatsapp-dark'
                     : 'bg-terracotta-100 text-terracotta-600 hover:bg-terracotta-200'
                 }`}
               >
@@ -118,12 +118,17 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-1 border-t border-sand py-4 text-center text-xs text-clay">
-        <p>© {new Date().getFullYear()} {SITE.name} · Feito com carinho para o seu pet 🐾</p>
+      <div className="flex flex-col items-center gap-1 border-t border-sand px-4 py-5 text-center text-xs text-clay">
+        <p className="flex flex-wrap items-center justify-center gap-1.5">
+          © {new Date().getFullYear()} {SITE.name} · Feito com carinho para o seu pet
+          <PawPrint size={13} className="text-terracotta-500" aria-hidden="true" />
+        </p>
         <p>
           Site desenvolvido por{' '}
           <span className="font-semibold text-terracotta-600">Fluxo Tech</span>
         </p>
+        {/* Espaço para o botão flutuante do WhatsApp não cobrir o texto no celular */}
+        <div aria-hidden="true" className="h-14 sm:h-0" />
       </div>
     </footer>
   )
