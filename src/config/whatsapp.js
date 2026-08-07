@@ -4,8 +4,8 @@
  * nenhum componente guarda número ou mensagem hardcoded.
  */
 export const WHATSAPP_NUMBERS = {
-  /** Atendentes: dúvidas gerais, produtos, loja */
-  atendimento: '5514997377299',
+  /** Atendentes: dúvidas gerais, produtos, loja — (14) 99629-6210 */
+  atendimento: '5514996296210',
   /** Médicos veterinários: consultas e urgências (mesmo número por enquanto) */
   veterinario: '5514997377299',
   /** Banho e tosa: agendamentos do spa */
