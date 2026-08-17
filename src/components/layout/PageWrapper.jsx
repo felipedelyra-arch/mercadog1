@@ -4,7 +4,7 @@ import { pageVariants } from '../../animations/variants'
 /**
  * Envolve o conteúdo de cada página para a transição de entrada/saída
  * orquestrada pelo AnimatePresence no App.
- * O padding-top compensa a navbar fixa (fio de 2px + barra de 64px).
+ * O padding-top compensa a navbar fixa (barra de 80px).
  */
 export default function PageWrapper({ children, className = '' }) {
   return (
@@ -13,7 +13,7 @@ export default function PageWrapper({ children, className = '' }) {
       initial="initial"
       animate="enter"
       exit="exit"
-      className={`min-h-screen pt-[4.125rem] ${className}`}
+      className={`min-h-screen pt-20 ${className}`}
     >
       {children}
     </motion.main>

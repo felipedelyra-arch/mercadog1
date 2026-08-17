@@ -51,7 +51,7 @@ export default function Loja() {
         {/* Busca + filtro por categoria.
             Grudam abaixo da navbar ao rolar: no celular dá para trocar o filtro
             sem voltar ao topo da lista. */}
-        <div className="sticky top-[4.125rem] z-30 -mx-4 flex flex-col gap-3 border-b border-sand bg-white/92 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6 sm:py-4">
+        <div className="sticky top-20 z-30 -mx-4 flex flex-col gap-3 border-b border-sand bg-white/92 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6 sm:py-4">
           <label className="relative block max-w-md">
             <span className="sr-only">Buscar produto</span>
             <Search

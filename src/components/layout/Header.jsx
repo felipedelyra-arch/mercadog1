@@ -70,21 +70,15 @@ export default function Header() {
           scrolled ? 'shadow-warm-lg' : 'shadow-none'
         }`}
       >
-        {/* Fio terracota no topo: assinatura da marca sem ocupar espaço */}
-        <span
-          aria-hidden="true"
-          className="block h-0.5 w-full bg-gradient-to-r from-terracotta-600 via-terracotta-400 to-terracotta-600"
-        />
-
         {/* Largura total: logo encostada à esquerda da tela */}
-        <div className="flex h-16 items-center justify-between gap-3 px-3 sm:px-5">
+        <div className="flex h-20 items-center justify-between gap-3 px-3 sm:px-5">
           {/* Logo branca direto sobre o fundo escuro, sem chip */}
           <Link
             to="/"
             aria-label="Mercadog — página inicial"
             className="shrink-0 rounded-lg transition-opacity hover:opacity-85"
           >
-            <Logo className="h-10 sm:h-12" variant="light" />
+            <Logo className="h-14 sm:h-16" variant="light" />
           </Link>
 
           {/* Links — desktop */}
