@@ -42,7 +42,7 @@ export default function Agendamento() {
           loading={loading}
           initialItemId={state?.serviceId}
           priceFor={(service) => ({ from: minPrice(service) })}
-          buildWhatsMessage={(service, slot, form, booking) => {
+          buildWhatsMessage={(service, slot, form) => {
             const porte = PET_SIZES.find((s) => s.id === form.porte)
             const preco = form.porte ? formatPrice(service.precos[form.porte]) : null
             return WHATSAPP_MESSAGES.agendamento({
@@ -50,8 +50,6 @@ export default function Agendamento() {
               data: slot.day.full,
               horario: slot.time,
               pet: form.pet,
-              protocolo: booking?.protocolo,
-              link: booking?.link,
             })
           }}
         />

@@ -8,7 +8,7 @@ import { Skeleton } from '../ui/Skeleton'
 
 /**
  * Seleção de data e horário — compartilhado entre banho/tosa e consultas.
- * `context` muda a agenda mockada ('servico' | 'consulta').
+ * `context` escolhe o horário de funcionamento aplicado ('servico' | 'consulta').
  * Chama `onChange({ day, time })`; `time` fica null até o usuário escolher.
  */
 export default function SlotPicker({ context = 'servico', onChange }) {
@@ -129,6 +129,14 @@ export default function SlotPicker({ context = 'servico', onChange }) {
                   )
                 })}
               </motion.div>
+            )}
+            {/* O site conhece o horário de funcionamento, não a ocupação da
+                agenda — o horário escolhido é um pedido, não uma reserva. */}
+            {selectedDay.slots.length > 0 && (
+              <p className="mt-3 text-xs text-clay">
+                Horários dentro do nosso atendimento. A equipe confirma a
+                disponibilidade pelo WhatsApp.
+              </p>
             )}
           </motion.fieldset>
         )}

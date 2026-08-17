@@ -46,15 +46,13 @@ export default function Consultas() {
           priceFor={(type) =>
             type.preco == null ? null : type.aPartir ? { from: type.preco } : type.preco
           }
-          buildWhatsMessage={(type, slot, form, booking) =>
+          buildWhatsMessage={(type, slot, form) =>
             WHATSAPP_MESSAGES.consulta({
               tipo: type.nome,
               data: slot.day.full,
               horario: slot.time,
               pet: form.pet,
               porte: PET_SIZES.find((s) => s.id === form.porte)?.label,
-              protocolo: booking?.protocolo,
-              link: booking?.link,
             })
           }
         />

@@ -3,7 +3,6 @@ import {CheckCircle2} from 'lucide-react'
 import { useState } from 'react'
 import { scaleIn } from '../../animations/variants'
 import { PET_SIZES } from '../../data/services'
-import { createBooking } from '../../services/api'
 import { WHATSAPP_NUMBERS, buildWhatsAppUrl } from '../../config/whatsapp'
 import Button from '../ui/Button'
 import WhatsAppIcon from '../ui/WhatsAppIcon'
@@ -11,17 +10,18 @@ import WhatsAppIcon from '../ui/WhatsAppIcon'
 const INITIAL_FORM = { tutor: '', pet: '', porte: '', telefone: '', observacoes: '' }
 
 /**
- * Formulário final do agendamento (frontend only).
+ * Formulário final do agendamento. Nada é gravado: o pedido existe só como
+ * mensagem de WhatsApp, então o formulário valida os dados e monta o texto.
+ *
  * `kind` = 'servico' exige o porte do pet (afeta o preço);
  * na 'consulta' o porte aparece igual, só que opcional.
  * `summary` = { itemLabel, day, time } vindos dos passos anteriores.
- * `buildWhatsMessage(form)` gera a mensagem de confirmação contextual.
+ * `buildWhatsMessage(form)` gera a mensagem contextual.
  */
 export default function BookingForm({ kind = 'servico', summary, buildWhatsMessage }) {
   const [form, setForm] = useState(INITIAL_FORM)
   const [errors, setErrors] = useState({})
-  const [sending, setSending] = useState(false)
-  const [result, setResult] = useState(null)
+  const [ready, setReady] = useState(false)
 
   const set = (field) => (e) => {
     setForm((f) => ({ ...f, [field]: e.target.value }))
@@ -38,20 +38,12 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
     return errs
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
     const errs = validate()
     setErrors(errs)
     if (Object.keys(errs).length > 0) return
-
-    setSending(true)
-    const response = await createBooking({ kind, ...form, ...summary })
-    setSending(false)
-    if (!response.ok) {
-      setErrors({ envio: response.erro ?? 'Tente novamente em instantes.' })
-      return
-    }
-    setResult(response)
+    setReady(true)
   }
 
   const inputClass = (field) =>
@@ -73,8 +65,8 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
 
   return (
     <AnimatePresence mode="wait">
-      {result ? (
-        /* ---- Feedback de sucesso ---- */
+      {ready ? (
+        /* ---- Resumo + envio pelo WhatsApp ---- */
         <motion.div
           key="success"
           variants={scaleIn}
@@ -92,16 +84,13 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
           </motion.span>
           <div>
             <h3 className="font-display text-2xl font-semibold text-ink">
-              Pedido registrado!
+              Tudo pronto para enviar
             </h3>
             <p className="mt-1 text-sm text-clay">
               {summary.itemLabel} · {summary.day?.full} às {summary.time}
             </p>
-            <p className="mt-2 text-xs text-clay">
-              Protocolo <strong className="text-terracotta-600">{result.protocolo}</strong>
-            </p>
-            {/* O pedido só vira agendamento quando a equipe confirma —
-                não prometemos horário garantido antes disso. */}
+            {/* Nada foi gravado: o pedido só chega à equipe quando o tutor
+                envia a mensagem, então o texto não promete horário reservado. */}
             <p className="mt-3 rounded-xl bg-cream px-4 py-3 text-sm text-clay">
               Falta um passo: <strong className="text-ink">envie a mensagem no WhatsApp</strong>{' '}
               para a equipe receber o pedido. A confirmação chega para você logo depois.
@@ -111,7 +100,7 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
             variant="whatsapp"
             href={buildWhatsAppUrl(
               kind === 'consulta' ? WHATSAPP_NUMBERS.veterinario : WHATSAPP_NUMBERS.banhoTosa,
-              buildWhatsMessage(form, result),
+              buildWhatsMessage(form),
             )}
           >
             <WhatsAppIcon size={18} aria-hidden="true" />
@@ -236,14 +225,8 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
             <strong className="text-ink">{summary.time}</strong>
           </p>
 
-          {errors.envio && (
-            <p role="alert" className="text-sm font-semibold text-red-500">
-              {errors.envio}
-            </p>
-          )}
-
-          <Button type="submit" loading={sending} className="w-full sm:w-auto sm:self-end">
-            {sending ? 'Enviando…' : 'Enviar pedido de agendamento'}
+          <Button type="submit" className="w-full sm:w-auto sm:self-end">
+            Continuar para o WhatsApp
           </Button>
         </motion.form>
       )}
