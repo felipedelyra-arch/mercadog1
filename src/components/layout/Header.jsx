@@ -88,7 +88,7 @@ export default function Header() {
                 {({ isActive }) => (
                   <>
                     <span
-                      className={`text-sm font-semibold transition-colors ${
+                      className={`text-base font-semibold transition-colors ${
                         isActive ? 'text-white' : 'text-white/75 hover:text-white'
                       }`}
                     >
@@ -123,16 +123,16 @@ export default function Header() {
             <Button
               size="sm"
               href={emergencyUrl}
-              className="pulse-emergency !bg-terracotta-500 hover:!bg-terracotta-400"
+              className="pulse-emergency !text-[0.9375rem] !bg-terracotta-500 hover:!bg-terracotta-400"
             >
-              <Siren size={16} aria-hidden="true" />
+              <Siren size={18} aria-hidden="true" />
               Emergência 24h
             </Button>
             <Button
               to="/agendamento"
               size="sm"
               variant="outline"
-              className="!border-white/35 !text-white hover:!border-white/60 hover:!bg-white/10"
+              className="!text-[0.9375rem] !border-white/35 !text-white hover:!border-white/60 hover:!bg-white/10"
             >
               Agende um horário
             </Button>
@@ -145,9 +145,9 @@ export default function Header() {
               target="_blank"
               rel="noopener noreferrer"
               whileTap={{ scale: 0.95 }}
-              className="pulse-emergency flex h-11 items-center gap-1.5 rounded-full bg-terracotta-500 pr-3.5 pl-3 text-[0.8125rem] font-bold text-white"
+              className="pulse-emergency flex h-11 items-center gap-1.5 rounded-full bg-terracotta-500 pr-4 pl-3.5 text-[0.9375rem] font-bold text-white"
             >
-              <Siren size={16} aria-hidden="true" />
+              <Siren size={18} aria-hidden="true" />
               Emergência
             </motion.a>
             <button
