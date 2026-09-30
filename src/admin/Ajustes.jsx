@@ -175,7 +175,7 @@ function DadosLoja() {
               </button>
             </div>
           ))}
-          <button type="button" onClick={() => setForm((f) => ({ ...f, hours: [...f.hours, { label: '', value: '' }] }))} className="flex w-fit items-center gap-1 text-sm font-semibold text-terracotta-600 hover:underline">
+          <button type="button" onClick={() => setForm((f) => ({ ...f, hours: [...f.hours, { label: '', value: '' }] }))} className="flex min-h-11 w-fit items-center gap-1 text-sm font-semibold text-terracotta-600 hover:underline">
             <Plus size={15} aria-hidden="true" />
             Adicionar linha
           </button>
@@ -359,10 +359,10 @@ function Veterinarios() {
             ) : (
               <div key={v.id} className={`flex items-center gap-2 rounded-tile border border-sand px-2 py-2 ${v.ativo ? '' : 'bg-cream/70'}`}>
                 <div className="flex flex-col">
-                  <button type="button" aria-label={`Subir ${v.nome}`} disabled={i === 0 || busy} onClick={() => run(() => Promise.all([saveVeterinario({ ...v, ordem: i }), saveVeterinario({ ...lista[i - 1], ordem: i + 1 })]))} className="grid size-6 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25">
+                  <button type="button" aria-label={`Subir ${v.nome}`} disabled={i === 0 || busy} onClick={() => run(() => Promise.all([saveVeterinario({ ...v, ordem: i }), saveVeterinario({ ...lista[i - 1], ordem: i + 1 })]))} className="grid size-10 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25 sm:size-7">
                     <ArrowUp size={14} />
                   </button>
-                  <button type="button" aria-label={`Descer ${v.nome}`} disabled={i === lista.length - 1 || busy} onClick={() => run(() => Promise.all([saveVeterinario({ ...v, ordem: i + 2 }), saveVeterinario({ ...lista[i + 1], ordem: i + 1 })]))} className="grid size-6 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25">
+                  <button type="button" aria-label={`Descer ${v.nome}`} disabled={i === lista.length - 1 || busy} onClick={() => run(() => Promise.all([saveVeterinario({ ...v, ordem: i + 2 }), saveVeterinario({ ...lista[i + 1], ordem: i + 1 })]))} className="grid size-10 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25 sm:size-7">
                     <ArrowDown size={14} />
                   </button>
                 </div>

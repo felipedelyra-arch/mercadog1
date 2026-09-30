@@ -93,7 +93,7 @@ export default function Inicio({ membro }) {
         <section className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-xl font-semibold text-ink">Aguardando resposta</h2>
-            <Link to="/admin/pedidos" className="text-sm font-semibold text-terracotta-600 hover:underline">
+            <Link to="/admin/pedidos" className="-my-2 flex min-h-11 items-center text-sm font-semibold text-terracotta-600 hover:underline">
               Ver todos
             </Link>
           </div>
@@ -142,7 +142,7 @@ export default function Inicio({ membro }) {
         <section className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-xl font-semibold text-ink">Hoje na agenda</h2>
-            <Link to="/admin/agenda" className="text-sm font-semibold text-terracotta-600 hover:underline">
+            <Link to="/admin/agenda" className="-my-2 flex min-h-11 items-center text-sm font-semibold text-terracotta-600 hover:underline">
               Abrir agenda
             </Link>
           </div>

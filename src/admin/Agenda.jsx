@@ -301,7 +301,7 @@ function DiaADia({ config, agora, diaInicial }) {
                 value={motivo}
                 onChange={(e) => setMotivo(e.target.value)}
                 placeholder="Motivo (opcional): feriado, folga…"
-                className="min-h-11 flex-1 rounded-full border border-sand-dark bg-white px-4 text-sm focus:border-terracotta-500 focus:outline-none"
+                className="min-h-11 w-full flex-1 rounded-full border border-sand-dark bg-white px-4 text-base focus:border-terracotta-500 focus:outline-none sm:w-auto sm:text-sm"
               />
               <Button type="submit" size="sm" loading={busy === 'dia'}>
                 Fechar
@@ -665,7 +665,7 @@ function Horarios({ config, onSaved }) {
                     </div>
                   ))}
                   <div className="flex flex-wrap items-center gap-3">
-                    <button type="button" onClick={() => setFaixas(dow, [...faixas, ['13:30', '18:00']])} className="flex items-center gap-1 text-sm font-semibold text-terracotta-600 hover:underline">
+                    <button type="button" onClick={() => setFaixas(dow, [...faixas, ['13:30', '18:00']])} className="flex min-h-11 items-center gap-1 text-sm font-semibold text-terracotta-600 hover:underline">
                       <Plus size={15} aria-hidden="true" />
                       Adicionar faixa (ex.: depois do almoço)
                     </button>

@@ -223,9 +223,12 @@ export async function deleteProduto(produto) {
   }
 }
 
-/** Sobe a foto para o bucket e devolve o caminho a gravar em `produtos.image`. */
+/**
+ * Sobe a foto para o bucket e devolve o caminho a gravar em `produtos.image`.
+ * Espera o arquivo já passado por prepararFoto (./foto.js).
+ */
 export async function uploadFoto(file) {
-  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
+  const ext = { 'image/webp': 'webp', 'image/png': 'png' }[file.type] ?? 'jpg'
   const path = `${crypto.randomUUID()}.${ext}`
   unwrap(
     await supabase.storage

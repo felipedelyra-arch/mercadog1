@@ -128,10 +128,10 @@ export default function Servicos() {
             return (
               <li key={s.id} className={`flex items-center gap-3 px-3 py-3 sm:px-4 ${s.ativo ? '' : 'bg-cream/70'}`}>
                 <div className="flex shrink-0 flex-col">
-                  <button type="button" aria-label={`Subir ${s.nome}`} disabled={i === 0} onClick={() => mover(i, -1)} className="grid size-7 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25">
+                  <button type="button" aria-label={`Subir ${s.nome}`} disabled={i === 0} onClick={() => mover(i, -1)} className="grid size-10 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25 sm:size-7">
                     <ArrowUp size={15} />
                   </button>
-                  <button type="button" aria-label={`Descer ${s.nome}`} disabled={i === servicos.length - 1} onClick={() => mover(i, 1)} className="grid size-7 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25">
+                  <button type="button" aria-label={`Descer ${s.nome}`} disabled={i === servicos.length - 1} onClick={() => mover(i, 1)} className="grid size-10 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25 sm:size-7">
                     <ArrowDown size={15} />
                   </button>
                 </div>

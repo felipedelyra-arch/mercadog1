@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   BarChart3,
   CalendarDays,
   ClipboardList,
+  ExternalLink,
   Home,
   Loader2,
   LogOut,
+  Menu,
   Package,
   Scissors,
   Settings,
@@ -216,65 +219,160 @@ function AdminShell({ membro, email, children }) {
       isActive ? 'bg-white text-ink' : 'text-white/75 hover:bg-white/10 hover:text-white'
     }`
 
+  const badge = pendentes > 0 && (
+    <span className="grid h-5 min-w-5 place-items-center rounded-full bg-terracotta-500 px-1 text-[11px] font-bold text-white">
+      {pendentes}
+    </span>
+  )
+
   return (
     <div className="min-h-dvh bg-cream">
       <header className="sticky top-0 z-40 bg-ink">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2.5 lg:py-3">
           <Link to="/" aria-label="Ver o site" className="shrink-0">
-            <Logo className="h-10" variant="light" />
+            <Logo className="h-9 lg:h-10" variant="light" />
           </Link>
-          <nav aria-label="Painel" className="scrollbar-none order-3 -mx-1 flex w-[calc(100%+0.5rem)] gap-1 overflow-x-auto px-1 lg:order-none lg:mx-0 lg:w-auto lg:px-0">
-            <NavLink to="/admin" end className={tab}>
-              <Home size={17} aria-hidden="true" />
-              Início
-            </NavLink>
-            <NavLink to="/admin/pedidos" className={tab}>
-              <ClipboardList size={17} aria-hidden="true" />
-              Pedidos
-              {pendentes > 0 && (
-                <span className="grid h-5 min-w-5 place-items-center rounded-full bg-terracotta-500 px-1 text-[11px] font-bold text-white">
-                  {pendentes}
-                </span>
-              )}
-            </NavLink>
-            <NavLink to="/admin/agenda" className={tab}>
-              <CalendarDays size={17} aria-hidden="true" />
-              Agenda
-            </NavLink>
-            <NavLink to="/admin/servicos" className={tab}>
-              <Scissors size={17} aria-hidden="true" />
-              Serviços
-            </NavLink>
-            <NavLink to="/admin/produtos" className={tab}>
-              <Package size={17} aria-hidden="true" />
-              Produtos
-            </NavLink>
-            <NavLink to="/admin/relatorios" className={tab}>
-              <BarChart3 size={17} aria-hidden="true" />
-              Relatórios
-            </NavLink>
-            <NavLink to="/admin/ajustes" className={tab}>
-              <Settings size={17} aria-hidden="true" />
-              Ajustes
-            </NavLink>
+          {/* computador: abas no topo */}
+          <nav aria-label="Painel" className="hidden gap-1 lg:flex">
+            {ABAS.map(({ to, label, Icon, end }) => (
+              <NavLink key={to} to={to} end={end} className={tab}>
+                <Icon size={17} aria-hidden="true" />
+                {label}
+                {to === '/admin/pedidos' && badge}
+              </NavLink>
+            ))}
           </nav>
-          <div className="ml-auto flex items-center gap-2">
-            <span className="hidden text-right text-xs leading-tight text-white/70 sm:block">
-              <strong className="block text-sm text-white">{membro.nome}</strong>
-              {email}
+          <div className="ml-auto flex min-w-0 items-center gap-2">
+            <span className="min-w-0 text-right text-xs leading-tight text-white/70">
+              <strong className="block truncate text-sm text-white">{membro.nome}</strong>
+              <span className="hidden truncate sm:block">{email}</span>
             </span>
             <button
               type="button"
               onClick={signOut}
               aria-label="Sair do painel"
-              className="tap grid size-10 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+              className="tap hidden size-10 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 lg:grid"
             >
               <LogOut size={17} />
             </button>
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-6 pb-24 sm:py-8 sm:pb-24">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-5 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:py-8 lg:pb-24">
+        {children}
+      </main>
+      <BarraInferior badge={badge} />
     </div>
+  )
+}
+
+const ABAS = [
+  { to: '/admin', label: 'Início', Icon: Home, end: true },
+  { to: '/admin/pedidos', label: 'Pedidos', Icon: ClipboardList },
+  { to: '/admin/agenda', label: 'Agenda', Icon: CalendarDays },
+  { to: '/admin/servicos', label: 'Serviços', Icon: Scissors },
+  { to: '/admin/produtos', label: 'Produtos', Icon: Package },
+  { to: '/admin/relatorios', label: 'Relatórios', Icon: BarChart3 },
+  { to: '/admin/ajustes', label: 'Ajustes', Icon: Settings },
+]
+// no celular, as quatro do dia a dia ficam na barra; o resto vai no "Mais"
+const NA_BARRA = ['/admin', '/admin/pedidos', '/admin/agenda', '/admin/produtos']
+
+/** Barra de abas fixa no rodapé do celular, ao alcance do polegar. */
+function BarraInferior({ badge }) {
+  const { pathname } = useLocation()
+  const [maisAberto, setMaisAberto] = useState(false)
+  const extras = ABAS.filter((a) => !NA_BARRA.includes(a.to))
+  const emExtra = extras.some((a) => pathname.startsWith(a.to))
+
+  // fecha o "Mais" ao trocar de tela
+  useEffect(() => setMaisAberto(false), [pathname])
+
+  const item = (ativo) =>
+    `relative flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors ${
+      ativo ? 'text-terracotta-600' : 'text-clay'
+    }`
+
+  return (
+    <>
+      <nav
+        aria-label="Painel"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-sand bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+      >
+        <div className="mx-auto flex max-w-lg">
+          {ABAS.filter((a) => NA_BARRA.includes(a.to)).map(({ to, label, Icon, end }) => (
+            <NavLink key={to} to={to} end={end} className={({ isActive }) => item(isActive)}>
+              <span className="relative">
+                <Icon size={22} aria-hidden="true" />
+                {to === '/admin/pedidos' && badge && <span className="absolute -top-2 -right-3">{badge}</span>}
+              </span>
+              {label}
+            </NavLink>
+          ))}
+          <button
+            type="button"
+            aria-expanded={maisAberto}
+            onClick={() => setMaisAberto((v) => !v)}
+            className={item(emExtra || maisAberto)}
+          >
+            <Menu size={22} aria-hidden="true" />
+            Mais
+          </button>
+        </div>
+      </nav>
+
+      <AnimatePresence>
+        {maisAberto && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMaisAberto(false)}
+              className="fixed inset-0 z-30 bg-ink/40 lg:hidden"
+              aria-hidden="true"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 24 }}
+              className="fixed inset-x-3 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-40 overflow-hidden rounded-card border border-sand bg-white shadow-warm-xl lg:hidden"
+            >
+              <ul className="flex flex-col divide-y divide-sand">
+                {extras.map(({ to, label, Icon }) => (
+                  <li key={to}>
+                    <NavLink
+                      to={to}
+                      className={({ isActive }) =>
+                        `flex min-h-13 items-center gap-3 px-4 font-semibold ${isActive ? 'text-terracotta-600' : 'text-ink'}`
+                      }
+                    >
+                      <Icon size={20} aria-hidden="true" />
+                      {label}
+                    </NavLink>
+                  </li>
+                ))}
+                <li>
+                  <Link to="/" className="flex min-h-13 items-center gap-3 px-4 font-semibold text-ink">
+                    <ExternalLink size={20} aria-hidden="true" />
+                    Ver o site
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={signOut}
+                    className="flex min-h-13 w-full items-center gap-3 px-4 font-semibold text-red-600"
+                  >
+                    <LogOut size={20} aria-hidden="true" />
+                    Sair do painel
+                  </button>
+                </li>
+              </ul>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   )
 }

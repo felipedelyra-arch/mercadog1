@@ -14,7 +14,7 @@ export function Chip({ ativo, onClick, on, off, discreto = false }) {
       type="button"
       aria-pressed={ativo}
       onClick={onClick}
-      className={`min-h-8 rounded-full px-3 text-xs font-bold whitespace-nowrap transition-colors ${cor}`}
+      className={`min-h-9 rounded-full px-2.5 text-xs font-bold whitespace-nowrap transition-colors sm:min-h-8 sm:px-3 ${cor}`}
     >
       {ativo ? on : off}
     </button>

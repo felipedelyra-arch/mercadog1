@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ImagePlus, Pencil, Plus, Search, Tags, Trash2, X } from 'lucide-react'
+import { Camera, ImagePlus, Loader2, Pencil, Plus, Search, Tags, Trash2, X } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { Skeleton } from '../components/ui/Skeleton'
 import { getIcon } from '../components/ui/icons'
@@ -9,6 +9,7 @@ import { productImageUrl } from '../data/products'
 import { getCategories } from '../services/api'
 import { formatPrice, parsePreco } from '../utils/format'
 import { deleteProduto, listProdutos, removeFoto, saveProduto, uploadFoto } from './api'
+import { FotoInvalida, prepararFoto } from './foto'
 import { Chip } from './ui'
 import { useToast } from './toast'
 import Categorias from './Categorias'
@@ -29,6 +30,7 @@ export default function Produtos() {
   const [categoria, setCategoria] = useState(TODAS)
   // ?estoque=sem (atalho da tela inicial) abre já filtrado
   const [soSemEstoque, setSoSemEstoque] = useState(params.get('estoque') === 'sem')
+  const [soSemFoto, setSoSemFoto] = useState(false)
   // produto em edição: objeto (editar), {} (novo) ou null (fechado)
   const [editando, setEditando] = useState(null)
   const [gerindoCategorias, setGerindoCategorias] = useState(false)
@@ -52,9 +54,10 @@ export default function Produtos() {
       (p) =>
         (categoria === TODAS || p.categoria === categoria) &&
         (!soSemEstoque || !p.disponivel) &&
+        (!soSemFoto || !p.image) &&
         (!q || `${p.nome} ${p.detalhes ?? ''}`.toLowerCase().includes(q)),
     )
-  }, [produtos, query, categoria, soSemEstoque])
+  }, [produtos, query, categoria, soSemEstoque, soSemFoto])
 
   const replace = (saved) =>
     setProdutos((list) => {
@@ -133,8 +136,8 @@ export default function Produtos() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <label className="relative flex-1">
+      <div className="flex flex-wrap gap-2">
+        <label className="relative w-full sm:w-auto sm:min-w-56 sm:flex-1">
           <span className="sr-only">Buscar produto</span>
           <Search size={17} className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-clay" aria-hidden="true" />
           <input
@@ -149,7 +152,7 @@ export default function Produtos() {
           value={categoria}
           onChange={(e) => setCategoria(e.target.value)}
           aria-label="Categoria"
-          className="rounded-full border border-sand-dark bg-white px-4 py-2.5 text-ink focus:border-terracotta-500 focus:outline-none"
+          className="min-h-11 w-full rounded-full border border-sand-dark bg-white px-4 text-ink focus:border-terracotta-500 focus:outline-none sm:w-auto"
         >
           <option value={TODAS}>Todas as categorias</option>
           {categorias.map((c) => (
@@ -167,7 +170,23 @@ export default function Produtos() {
           />
           Só sem estoque
         </label>
+        <label className="flex min-h-11 items-center gap-2 rounded-full border border-sand-dark bg-white px-4 text-sm font-semibold text-clay">
+          <input
+            type="checkbox"
+            checked={soSemFoto}
+            onChange={(e) => setSoSemFoto(e.target.checked)}
+            className="size-4 accent-terracotta-500"
+          />
+          Só sem foto
+          {produtos && (
+            <span className="text-xs font-normal">({produtos.filter((p) => !p.image).length})</span>
+          )}
+        </label>
       </div>
+
+      <p className="-mt-2 text-xs text-clay">
+        Toque na foto de um produto para tirar ou trocar a foto na hora.
+      </p>
 
       {!produtos ? (
         <div className="flex flex-col gap-2">
@@ -180,46 +199,44 @@ export default function Produtos() {
           {filtrados.length === 0 && (
             <li className="px-4 py-10 text-center text-sm text-clay">Nenhum produto com esses filtros.</li>
           )}
-          {filtrados.map((p) => {
-            const Icon = getIcon(p.categorias?.icon)
-            const foto = productImageUrl(p.image)
-            return (
-              <li key={p.id} className={`flex items-center gap-3 px-3 py-2.5 sm:px-4 ${p.disponivel ? '' : 'bg-cream/70'}`}>
-                <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-tile bg-terracotta-50 text-terracotta-400">
-                  {foto ? <img src={foto} alt="" className="size-full object-cover" /> : <Icon size={20} aria-hidden="true" />}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setEditando(p)}
-                  className="min-w-0 flex-1 text-left"
-                >
-                  <span className="block truncate text-sm font-semibold text-ink">{p.nome}</span>
-                  <span className="block truncate text-xs text-clay">
-                    {[p.detalhes, p.categorias?.label].filter(Boolean).join(' · ')}
-                  </span>
-                </button>
-                <PrecoInline
-                  produto={p}
-                  onSave={(preco) =>
-                    alterar(p, 'preco', preco, `${p.nome}: ${preco == null ? 'sob consulta' : formatPrice(preco)}.`)
-                  }
-                />
-                <div className="flex shrink-0 flex-col items-end gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+          {filtrados.map((p) => (
+            <li key={p.id} className={`flex gap-3 px-3 py-3 sm:items-center sm:px-4 ${p.disponivel ? '' : 'bg-cream/70'}`}>
+              <FotoRapida produto={p} onSaved={replace} />
+              <div className="flex min-w-0 flex-1 flex-col gap-2 lg:flex-row lg:items-center lg:gap-3">
+                <div className="flex min-w-0 items-start gap-2 lg:flex-1 lg:items-center">
+                  <button
+                    type="button"
+                    onClick={() => setEditando(p)}
+                    className="min-w-0 flex-1 text-left"
+                  >
+                    <span className="line-clamp-2 text-sm font-semibold text-ink lg:line-clamp-1">{p.nome}</span>
+                    <span className="block truncate text-xs text-clay">
+                      {[p.detalhes, p.categorias?.label].filter(Boolean).join(' · ')}
+                    </span>
+                  </button>
+                  <PrecoInline
+                    produto={p}
+                    onSave={(preco) =>
+                      alterar(p, 'preco', preco, `${p.nome}: ${preco == null ? 'sob consulta' : formatPrice(preco)}.`)
+                    }
+                  />
+                </div>
+                <div className="flex flex-wrap gap-1 sm:gap-1.5 lg:shrink-0 lg:flex-nowrap">
                   <Chip ativo={p.disponivel} onClick={() => toggle(p, 'disponivel')} on="Em estoque" off="Sem estoque" />
                   <Chip ativo={p.destaque} onClick={() => toggle(p, 'destaque')} on="★ Destaque" off="☆ Destaque" discreto />
                   <Chip ativo={Boolean(p.exige_receita)} onClick={() => toggle(p, 'exige_receita')} on="Exige receita" off="Sem receita" discreto />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setEditando(p)}
-                  aria-label={`Editar ${p.nome}`}
-                  className="hidden size-9 shrink-0 place-items-center rounded-full text-clay hover:bg-terracotta-50 hover:text-ink sm:grid"
-                >
-                  <Pencil size={16} />
-                </button>
-              </li>
-            )
-          })}
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditando(p)}
+                aria-label={`Editar ${p.nome}`}
+                className="hidden size-10 shrink-0 place-items-center rounded-full text-clay hover:bg-terracotta-50 hover:text-ink sm:grid"
+              >
+                <Pencil size={16} />
+              </button>
+            </li>
+          ))}
         </ul>
       )}
 
@@ -267,7 +284,8 @@ function ProdutoForm({ produto, categorias, onClose, onSaved, onDeleted }) {
     exige_receita: produto.exige_receita ?? false,
     image: produto.image ?? null,
   })
-  const [foto, setFoto] = useState(null) // arquivo novo escolhido
+  const [foto, setFoto] = useState(null) // arquivo novo escolhido, já reduzido
+  const [preparando, setPreparando] = useState(false)
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [error, setError] = useState(null)
@@ -363,29 +381,45 @@ function ProdutoForm({ produto, categorias, onClose, onSaved, onDeleted }) {
         </div>
 
         <div className="flex flex-col gap-4 overflow-y-auto px-5 py-4">
-          {/* Foto */}
+          {/* Foto: no celular o próprio aparelho oferece câmera ou galeria */}
           <div className="flex items-center gap-4">
-            <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-tile bg-terracotta-50 text-terracotta-300">
-              {preview ? <img src={preview} alt="" className="size-full object-cover" /> : <ImagePlus size={26} aria-hidden="true" />}
-            </span>
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              aria-label={preview ? 'Trocar foto' : 'Tirar ou escolher foto'}
+              className="relative grid size-24 shrink-0 place-items-center overflow-hidden rounded-tile bg-terracotta-50 text-terracotta-300"
+            >
+              {preview ? <img src={preview} alt="" className="size-full object-cover" /> : <Camera size={28} aria-hidden="true" />}
+              {preparando && (
+                <span className="absolute inset-0 grid place-items-center bg-white/70">
+                  <Loader2 size={22} className="animate-spin text-terracotta-500" aria-label="Preparando foto" />
+                </span>
+              )}
+            </button>
             <div className="flex flex-wrap gap-2">
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                accept="image/*"
                 className="hidden"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files?.[0]
-                  if (file && file.size > 5 * 1024 * 1024) {
-                    setError('Foto muito grande (máximo 5 MB).')
-                    return
+                  e.target.value = '' // deixa escolher a mesma foto de novo
+                  if (!file) return
+                  setPreparando(true)
+                  setError(null)
+                  try {
+                    setFoto(await prepararFoto(file))
+                  } catch (err) {
+                    setError(err instanceof FotoInvalida ? err.message : 'Não foi possível usar essa foto. Tente outra.')
+                  } finally {
+                    setPreparando(false)
                   }
-                  if (file) setFoto(file)
                 }}
               />
-              <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+              <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={preparando}>
                 <ImagePlus size={16} aria-hidden="true" />
-                {preview ? 'Trocar foto' : 'Adicionar foto'}
+                {preview ? 'Trocar foto' : 'Tirar ou escolher foto'}
               </Button>
               {preview && (
                 <Button
@@ -469,12 +503,80 @@ function ProdutoForm({ produto, categorias, onClose, onSaved, onDeleted }) {
               </button>
             ))}
           {!confirmDelete && (
-            <Button type="submit" loading={saving} className="ml-auto">
+            <Button type="submit" loading={saving} disabled={preparando} className="ml-auto">
               Salvar
             </Button>
           )}
         </div>
       </motion.form>
+    </>
+  )
+}
+
+/**
+ * Foto da linha da lista: tocar abre câmera/galeria e a foto já é salva no
+ * produto, sem abrir o formulário — para cadastrar fotos em sequência.
+ */
+function FotoRapida({ produto, onSaved }) {
+  const toast = useToast()
+  const inputRef = useRef(null)
+  const [enviando, setEnviando] = useState(false)
+  const Icon = getIcon(produto.categorias?.icon)
+  const foto = productImageUrl(produto.image)
+
+  const enviar = async (file) => {
+    setEnviando(true)
+    let novo = null
+    try {
+      novo = await uploadFoto(await prepararFoto(file))
+      const saved = await saveProduto({ id: produto.id, image: novo })
+      if (produto.image && produto.image !== novo) removeFoto(produto.image).catch(() => {})
+      onSaved(saved)
+      toast({ message: `${produto.nome}: foto salva.` })
+    } catch (err) {
+      // subiu mas não gravou no produto: não deixa a foto solta no bucket
+      if (novo) removeFoto(novo).catch(() => {})
+      toast({
+        message:
+          err instanceof FotoInvalida ? err.message : 'Não foi possível enviar a foto. Confira a internet e tente de novo.',
+        tone: 'erro',
+      })
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          e.target.value = ''
+          if (file) enviar(file)
+        }}
+      />
+      <button
+        type="button"
+        disabled={enviando}
+        onClick={() => inputRef.current?.click()}
+        aria-label={`${foto ? 'Trocar a foto de' : 'Adicionar foto a'} ${produto.nome}`}
+        className="relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-tile bg-terracotta-50 text-terracotta-400 sm:size-14"
+      >
+        {foto ? <img src={foto} alt="" loading="lazy" className="size-full object-cover" /> : <Icon size={20} aria-hidden="true" />}
+        {enviando ? (
+          <span className="absolute inset-0 grid place-items-center bg-white/70">
+            <Loader2 size={20} className="animate-spin text-terracotta-500" />
+          </span>
+        ) : (
+          <span className="absolute right-0.5 bottom-0.5 grid size-5 place-items-center rounded-full bg-ink/70 text-white">
+            <Camera size={11} aria-hidden="true" />
+          </span>
+        )}
+      </button>
     </>
   )
 }
@@ -519,7 +621,7 @@ function PrecoInline({ produto, onSave }) {
           if (e.key === 'Escape') setEditando(false)
         }}
         onBlur={salvar}
-        className={`w-24 shrink-0 rounded-tile border bg-white px-2 py-1.5 text-right text-sm font-semibold text-ink focus:outline-none ${
+        className={`w-24 shrink-0 rounded-tile border bg-white px-2 py-1.5 text-right text-base font-semibold text-ink focus:outline-none sm:text-sm ${
           invalido ? 'border-red-500' : 'border-terracotta-500'
         }`}
       />
@@ -531,7 +633,7 @@ function PrecoInline({ produto, onSave }) {
       type="button"
       onClick={abrir}
       title="Tocar para mudar o preço"
-      className="shrink-0 rounded-tile border border-dashed border-transparent px-2 py-1.5 text-right text-sm font-semibold text-terracotta-600 transition-colors hover:border-terracotta-300 hover:bg-terracotta-50"
+      className="min-h-10 shrink-0 rounded-tile border border-dashed border-terracotta-200 px-2 py-1.5 text-right text-sm font-semibold text-terracotta-600 transition-colors hover:border-terracotta-300 hover:bg-terracotta-50 sm:border-transparent"
     >
       {produto.preco == null ? 'Sob consulta' : formatPrice(produto.preco)}
     </button>

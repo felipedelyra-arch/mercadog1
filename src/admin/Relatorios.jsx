@@ -199,11 +199,12 @@ function BarrasPorDia({ serie }) {
         ))}
       </div>
       <div className="relative mt-1 h-4 text-[11px] text-clay">
+        {/* primeiro rótulo colado à esquerda e último à direita: não vazam da tela no celular */}
         {[...marcas].map((i) => (
           <span
             key={i}
-            className="absolute -translate-x-1/2"
-            style={{ left: `${((i + 0.5) / serie.length) * 100}%` }}
+            className={`absolute whitespace-nowrap ${i === 0 ? '' : i === serie.length - 1 ? '-translate-x-full' : '-translate-x-1/2'}`}
+            style={{ left: i === 0 ? 0 : i === serie.length - 1 ? '100%' : `${((i + 0.5) / serie.length) * 100}%` }}
           >
             {CURTO_FMT.format(new Date(`${serie[i].dia}T00:00:00Z`))}
           </span>

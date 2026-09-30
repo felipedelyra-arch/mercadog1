@@ -41,7 +41,7 @@ export default function ToastProvider({ children }) {
       {children}
       <div
         aria-live="polite"
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] flex flex-col items-center gap-2 px-3 pb-4 sm:pb-6"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] flex flex-col items-center gap-2 px-3 pb-[calc(4.75rem+env(safe-area-inset-bottom))] lg:pb-6"
       >
         <AnimatePresence>
           {toasts.map((t) => (

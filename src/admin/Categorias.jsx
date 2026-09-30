@@ -176,10 +176,10 @@ export default function Categorias({ onClose }) {
               ) : (
                 <div key={c.id} className="flex items-center gap-2 rounded-tile border border-sand px-2 py-2">
                   <div className="flex flex-col">
-                    <button type="button" aria-label={`Subir ${c.label}`} disabled={i === 0 || busy} onClick={() => mover(i, -1)} className="grid size-6 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25">
+                    <button type="button" aria-label={`Subir ${c.label}`} disabled={i === 0 || busy} onClick={() => mover(i, -1)} className="grid size-10 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25 sm:size-7">
                       <ArrowUp size={14} />
                     </button>
-                    <button type="button" aria-label={`Descer ${c.label}`} disabled={i === lista.length - 1 || busy} onClick={() => mover(i, 1)} className="grid size-6 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25">
+                    <button type="button" aria-label={`Descer ${c.label}`} disabled={i === lista.length - 1 || busy} onClick={() => mover(i, 1)} className="grid size-10 place-items-center rounded-full text-clay hover:bg-terracotta-50 disabled:opacity-25 sm:size-7">
                       <ArrowDown size={14} />
                     </button>
                   </div>
