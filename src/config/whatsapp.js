@@ -12,26 +12,55 @@ export const WHATSAPP_NUMBERS = {
   banhoTosa: '5514996296210',
 }
 
+/** Junta as linhas da mensagem; `false`/`null` somem, '' vira linha em branco. */
+const lista = (linhas) => linhas.filter((l) => l !== false && l != null).join('\n')
+
 export const WHATSAPP_MESSAGES = {
   geral: 'Olá! Vim pelo site do Mercadog e gostaria de tirar uma dúvida.',
 
   produto: (nomeProduto) =>
     `Olá! Vi o produto "${nomeProduto}" no site do Mercadog e gostaria de saber mais.`,
 
-  agendamento: ({ servico, data, horario, pet }) =>
-    `Olá! Gostaria de agendar um horário pelo site do Mercadog:\n` +
-    `• Serviço: ${servico}\n` +
-    `• Data: ${data} às ${horario}\n` +
-    (pet ? `• Pet: ${pet}\n` : '') +
-    `Podem confirmar, por favor?`,
+  /* Pedidos gravados no site. Quem envia é o cliente, então tudo aqui ele
+     lê: vai só o que a equipe precisa para achar e atender o pedido — o
+     número leva ao pedido no painel (/admin), sem link nenhum na mensagem. */
 
-  consulta: ({ tipo, data, horario, pet, porte }) =>
-    `Olá! Gostaria de marcar uma consulta veterinária:\n` +
-    `• Tipo: ${tipo}\n` +
-    (data ? `• Data: ${data} às ${horario}\n` : '') +
-    (pet ? `• Pet: ${pet}\n` : '') +
-    (porte ? `• Porte: ${porte}\n` : '') +
-    `Aguardo retorno!`,
+  agendamento: ({ numero, servico, data, horario, pet }) =>
+    lista([
+      `Olá! Quero agendar pelo site (pedido nº ${numero}):`,
+      '',
+      pet ? `${pet}: ${servico}` : servico,
+      `Data: ${data}, às ${horario}`,
+      '',
+      'Podem confirmar?',
+    ]),
+
+  consulta: ({ numero, data, horario, pet, porte, motivo }) =>
+    lista([
+      `Olá! Quero marcar uma consulta pelo site (pedido nº ${numero}):`,
+      '',
+      pet ? `Pet: ${pet}${porte ? ` (porte ${porte.toLowerCase()})` : ''}` : null,
+      motivo?.trim() ? `Motivo: ${motivo.trim()}` : null,
+      `Data: ${data}, às ${horario}`,
+      '',
+      'Podem confirmar?',
+    ]),
+
+  pedidoLoja: ({ numero, itens, total, sobConsulta, entrega, endereco }) =>
+    lista([
+      `Olá! Fiz um pedido pelo site (nº ${numero}):`,
+      '',
+      ...itens.map(
+        (i) =>
+          `${i.quantidade}x ${i.nome}${i.detalhes ? ` (${i.detalhes})` : ''}${i.exige_receita ? ' - exige receita' : ''}`,
+      ),
+      '',
+      `Total: ${total}${sobConsulta ? ' + itens sob consulta' : ''}`,
+      entrega === 'entrega' ? `Entregar em: ${endereco}` : 'Vou retirar na loja',
+      itens.some((i) => i.exige_receita) ? 'Vou enviar a foto da receita aqui.' : null,
+      '',
+      'Podem confirmar?',
+    ]),
 
   veterinarioDireto:
     'Olá! Gostaria de falar com um veterinário do Mercadog sobre o meu pet.',

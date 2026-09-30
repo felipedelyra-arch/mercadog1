@@ -1,12 +1,11 @@
 import { motion } from 'framer-motion'
 import { Check, Clock } from 'lucide-react'
-import { fadeUp, SPRING_SNAP } from '../animations/variants'
-import { useTilt } from '../hooks/useTilt'
+import { fadeUp } from '../animations/variants'
 import { formatDuration, formatPrice } from '../utils/format'
 import { getIcon } from './ui/icons'
 
 /**
- * Card de serviço/consulta com tilt 3D e spotlight que seguem o cursor.
+ * Card de serviço de banho e tosa.
  * `price` pode ser número (preço fixo), { from: n } para "a partir de"
  * ou null/undefined para "Sob consulta".
  * Com `onSelect` vira um card selecionável (usado nos fluxos de agendamento).
@@ -14,18 +13,13 @@ import { getIcon } from './ui/icons'
 export default function ServiceCard({ item, price, selected = false, onSelect }) {
   const Icon = getIcon(item.icon)
   const interactive = Boolean(onSelect)
-  const tilt = useTilt()
 
   const Tagname = interactive ? motion.button : motion.div
 
   return (
     <Tagname
       variants={fadeUp}
-      {...tilt.handlers}
-      style={tilt.style}
-      whileHover={{ y: -4 }}
-      whileTap={{ scale: 0.985 }}
-      transition={SPRING_SNAP}
+      whileTap={interactive ? { scale: 0.985 } : undefined}
       type={interactive ? 'button' : undefined}
       onClick={interactive ? () => onSelect(item) : undefined}
       aria-pressed={interactive ? selected : undefined}
@@ -35,13 +29,6 @@ export default function ServiceCard({ item, price, selected = false, onSelect })
           : 'border-sand hover:border-terracotta-200'
       } ${interactive ? 'cursor-pointer' : ''}`}
     >
-      {/* Spotlight quente seguindo o cursor */}
-      <motion.span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{ background: tilt.spotlight }}
-      />
-
       {selected && (
         <motion.span
           initial={{ scale: 0 }}
@@ -53,7 +40,7 @@ export default function ServiceCard({ item, price, selected = false, onSelect })
         </motion.span>
       )}
 
-      <span className="grid size-12 place-items-center rounded-arch bg-terracotta-100 text-terracotta-600 transition-transform duration-500 ease-out group-hover:-rotate-6 group-hover:scale-108 motion-reduce:transition-none">
+      <span className="grid size-12 place-items-center rounded-arch bg-terracotta-100 text-terracotta-600">
         <Icon size={24} aria-hidden="true" />
       </span>
 

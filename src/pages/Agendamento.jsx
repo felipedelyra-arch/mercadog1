@@ -6,10 +6,21 @@ import SectionHeading from '../components/ui/SectionHeading'
 import WhatsAppIcon from '../components/ui/WhatsAppIcon'
 import { useFetch } from '../hooks/useFetch'
 import { getServices } from '../services/api'
-import { minPrice, PET_SIZES } from '../data/services'
+import { cardPrice, PET_SIZES } from '../data/services'
 import { SITE } from '../config/site'
 import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../config/whatsapp'
 import { formatPrice } from '../utils/format'
+
+/**
+ * "Banho (porte médio, R$ 75,00)" — gravado no pedido e usado na mensagem.
+ * Porte sem preço cadastrado vira "valor na hora".
+ */
+function describeService(service, form) {
+  const porte = PET_SIZES.find((s) => s.id === form.porte)
+  if (!porte) return service.nome
+  const preco = service.precos?.[form.porte]
+  return `${service.nome} (porte ${porte.label.toLowerCase()}, ${preco == null ? 'valor na hora' : formatPrice(preco)})`
+}
 
 export default function Agendamento() {
   const { data: services, loading } = useFetch(getServices)
@@ -17,11 +28,11 @@ export default function Agendamento() {
   const { state } = useLocation()
 
   return (
-    <PageWrapper>
-      <div className="bg-glow mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 sm:gap-12 sm:px-6 sm:py-12">
+    <PageWrapper title="Agendar banho e tosa">
+      <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 sm:gap-12 sm:px-6 sm:py-12">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading
-            eyebrow="Banho e tosa"
+            as="h1"
             title="Agende o dia de spa do seu pet"
             subtitle="Três passos rápidos: serviço, horário e os dados do seu pet. Os valores variam por porte."
             align="left"
@@ -41,17 +52,17 @@ export default function Agendamento() {
           items={services ?? []}
           loading={loading}
           initialItemId={state?.serviceId}
-          priceFor={(service) => ({ from: minPrice(service) })}
-          buildWhatsMessage={(service, slot, form) => {
-            const porte = PET_SIZES.find((s) => s.id === form.porte)
-            const preco = form.porte ? formatPrice(service.precos[form.porte]) : null
-            return WHATSAPP_MESSAGES.agendamento({
-              servico: `${service.nome}${porte ? ` (porte ${porte.label.toLowerCase()}${preco ? `, ${preco}` : ''})` : ''}`,
+          priceFor={cardPrice}
+          serviceLabel={describeService}
+          buildWhatsMessage={(service, slot, form, pedido) =>
+            WHATSAPP_MESSAGES.agendamento({
+              ...pedido,
+              servico: describeService(service, form),
               data: slot.day.full,
               horario: slot.time,
               pet: form.pet,
             })
-          }}
+          }
         />
       </div>
     </PageWrapper>

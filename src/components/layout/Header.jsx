@@ -1,26 +1,59 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { Clock, MapPin, Menu, Phone, Siren, X } from 'lucide-react'
+import { pausarRolagem, retomarRolagem } from '../../lib/smoothScroll'
+import { Clock, MapPin, Menu, Phone, ShoppingBag, Siren, X } from 'lucide-react'
 import Logo from '../ui/Logo'
 import Button from '../ui/Button'
 import { EASE, staggerContainer, fadeUp } from '../../animations/variants'
 import { SITE } from '../../config/site'
 import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../../config/whatsapp'
 import WhatsAppIcon from '../ui/WhatsAppIcon'
+import { useCart } from '../../context/CartContext'
 
 const NAV_LINKS = [
   { to: '/', label: 'Início' },
   { to: '/agendamento', label: 'Banho e Tosa' },
   { to: '/consultas', label: 'Consultas' },
-  { to: '/loja', label: 'Loja' },
+  { to: '/loja', label: 'Farmácia' },
 ]
+
+/** Sacola com contador; o número "pula" a cada item novo. */
+function CartButton() {
+  const { count, setOpen } = useCart()
+  return (
+    <motion.button
+      type="button"
+      onClick={() => setOpen(true)}
+      aria-label={count ? `Abrir carrinho, ${count} ${count === 1 ? 'item' : 'itens'}` : 'Abrir carrinho'}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.92 }}
+      className="relative grid size-11 shrink-0 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 md:size-10"
+    >
+      <ShoppingBag size={19} aria-hidden="true" />
+      <AnimatePresence>
+        {count > 0 && (
+          <motion.span
+            key={count}
+            initial={{ scale: 0.4 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 18 }}
+            className="absolute -top-1 -right-1 grid h-5 min-w-5 place-items-center rounded-full bg-terracotta-500 px-1 text-xs font-bold text-white ring-2 ring-ink"
+          >
+            {count}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </motion.button>
+  )
+}
 
 /**
  * Navbar fixa no topo, escura: logo à esquerda, links centrais com sublinhado
  * animado, CTA à direita. No mobile ficam visíveis o botão de emergência
  * (o motivo nº 1 de alguém abrir o site com pressa) e o hambúrguer, que
- * abre um drawer branco pela esquerda.
+ * abre um drawer branco pela direita — do mesmo lado do botão.
  */
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -52,9 +85,11 @@ export default function Header() {
     }
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
+    pausarRolagem()
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
+      retomarRolagem()
     }
   }, [menuOpen])
 
@@ -109,6 +144,7 @@ export default function Header() {
 
           {/* Ações à direita — desktop */}
           <div className="hidden items-center gap-2 md:flex">
+            <CartButton />
             <motion.a
               href={buildWhatsAppUrl(WHATSAPP_NUMBERS.atendimento, WHATSAPP_MESSAGES.geral)}
               target="_blank"
@@ -123,7 +159,7 @@ export default function Header() {
             <Button
               size="sm"
               href={emergencyUrl}
-              className="pulse-emergency !text-[0.9375rem] !bg-terracotta-500 hover:!bg-terracotta-400"
+              className="!text-[0.9375rem] !bg-terracotta-500 hover:!bg-terracotta-400"
             >
               <Siren size={18} aria-hidden="true" />
               Emergência 24h
@@ -140,12 +176,13 @@ export default function Header() {
 
           {/* Ações — mobile: emergência sempre à vista, depois o menu */}
           <div className="flex items-center gap-1.5 md:hidden">
+            <CartButton />
             <motion.a
               href={emergencyUrl}
               target="_blank"
               rel="noopener noreferrer"
               whileTap={{ scale: 0.95 }}
-              className="pulse-emergency flex h-11 items-center gap-1.5 rounded-full bg-terracotta-500 pr-4 pl-3.5 text-[0.9375rem] font-bold text-white"
+              className="flex h-11 items-center gap-1.5 rounded-full bg-terracotta-500 pr-4 pl-3.5 text-[0.9375rem] font-bold text-white"
             >
               <Siren size={18} aria-hidden="true" />
               Emergência
@@ -183,11 +220,11 @@ export default function Header() {
               role="dialog"
               aria-modal="true"
               aria-label="Menu de navegação"
-              initial={{ x: '-100%' }}
+              initial={{ x: '100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
+              exit={{ x: '100%' }}
               transition={{ duration: 0.35, ease: EASE }}
-              className="fixed inset-y-0 left-0 z-[70] flex w-[19rem] max-w-[86vw] flex-col bg-white shadow-warm-xl md:hidden"
+              className="fixed inset-y-0 right-0 z-[70] flex w-[19rem] max-w-[86vw] flex-col bg-white shadow-warm-xl md:hidden"
             >
               <div className="flex items-center justify-between border-b border-sand px-5 py-3.5">
                 <Logo className="h-10" />

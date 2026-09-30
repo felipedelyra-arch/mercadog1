@@ -12,7 +12,7 @@ import { Skeleton } from '../ui/Skeleton'
  * Chama `onChange({ day, time })`; `time` fica null até o usuário escolher.
  */
 export default function SlotPicker({ context = 'servico', onChange }) {
-  const { data: days, loading } = useFetch(() => getAvailableSlots(context), [context])
+  const { data: days, loading, error } = useFetch(() => getAvailableSlots(context), [context])
   const [selectedDay, setSelectedDay] = useState(null)
   const [selectedTime, setSelectedTime] = useState(null)
 
@@ -40,10 +40,22 @@ export default function SlotPicker({ context = 'servico', onChange }) {
     )
   }
 
+  if (error || days.length === 0) {
+    return (
+      <p className="flex items-center gap-2 rounded-xl bg-cream px-4 py-3 text-sm text-clay">
+        <CalendarX2 size={16} className="shrink-0 text-terracotta-500" aria-hidden="true" />
+        {error
+          ? 'Não conseguimos carregar a agenda agora. Tente de novo em instantes ou fale com a gente pelo WhatsApp.'
+          : 'Sem horários disponíveis nos próximos dias. Fale com a gente pelo WhatsApp.'}
+      </p>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-5">
       {/* Dias */}
-      <fieldset>
+      {/* min-w-0: sem isso o fieldset cresce até caber todos os dias e a página vaza para o lado */}
+      <fieldset className="min-w-0">
         <legend className="mb-2 text-sm font-bold text-ink">Escolha o dia</legend>
         <motion.div
           variants={staggerContainer}
@@ -70,7 +82,7 @@ export default function SlotPicker({ context = 'servico', onChange }) {
                     : 'border-sand bg-white text-clay hover:border-terracotta-300'
                 }`}
               >
-                <span className="text-[11px] font-bold tracking-wide uppercase">{day.weekday}</span>
+                <span className="text-xs font-bold tracking-wide uppercase">{day.weekday}</span>
                 <span className={`text-sm font-semibold ${active ? '' : 'text-ink'}`}>
                   {day.label}
                 </span>
@@ -84,6 +96,7 @@ export default function SlotPicker({ context = 'servico', onChange }) {
       <AnimatePresence mode="wait">
         {selectedDay && (
           <motion.fieldset
+            className="min-w-0"
             key={selectedDay.iso}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -130,12 +143,12 @@ export default function SlotPicker({ context = 'servico', onChange }) {
                 })}
               </motion.div>
             )}
-            {/* O site conhece o horário de funcionamento, não a ocupação da
-                agenda — o horário escolhido é um pedido, não uma reserva. */}
+            {/* Só aparecem horários livres, mas o pedido vira reserva quando a
+                equipe confirma — até lá, outro cliente pode pedir o mesmo. */}
             {selectedDay.slots.length > 0 && (
               <p className="mt-3 text-xs text-clay">
-                Horários dentro do nosso atendimento. A equipe confirma a
-                disponibilidade pelo WhatsApp.
+                Só mostramos horários livres. O horário fica reservado assim que a
+                equipe confirmar o seu pedido.
               </p>
             )}
           </motion.fieldset>

@@ -1,33 +1,8 @@
-import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 
 const MotionLink = motion.create(Link)
-
-/** Efeito magnético: o botão desliza alguns px em direção ao cursor. */
-function useMagnetic(strength = 0.18, limit = 5) {
-  const reduced = useReducedMotion()
-  const mx = useMotionValue(0)
-  const my = useMotionValue(0)
-  const spring = { stiffness: 300, damping: 18, mass: 0.5 }
-  const x = useSpring(mx, spring)
-  const y = useSpring(my, spring)
-
-  const clamp = (v) => Math.max(-limit, Math.min(limit, v))
-
-  const onMouseMove = (e) => {
-    if (reduced) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    mx.set(clamp((e.clientX - rect.left - rect.width / 2) * strength))
-    my.set(clamp((e.clientY - rect.top - rect.height / 2) * strength))
-  }
-  const onMouseLeave = () => {
-    mx.set(0)
-    my.set(0)
-  }
-
-  return { handlers: { onMouseMove, onMouseLeave }, style: reduced ? {} : { x, y } }
-}
 
 const VARIANTS = {
   primary:
@@ -47,10 +22,10 @@ const SIZES = {
   lg: 'min-h-13 px-6 py-3.5 text-base sm:px-8 sm:py-4 sm:text-lg',
 }
 
+// só um retorno de toque; nada de crescer ou "puxar" com o mouse
 const MOTION_PROPS = {
-  whileHover: { scale: 1.03 },
-  whileTap: { scale: 0.96 },
-  transition: { type: 'spring', stiffness: 220, damping: 24, mass: 0.8 },
+  whileTap: { scale: 0.97 },
+  transition: { type: 'spring', stiffness: 400, damping: 30 },
 }
 
 /**
@@ -69,8 +44,6 @@ export default function Button({
   children,
   ...rest
 }) {
-  const magnetic = useMagnetic()
-
   const classes = [
     'inline-flex items-center justify-center gap-2 rounded-full font-semibold',
     'text-center leading-tight tracking-[0.005em]',
@@ -81,7 +54,7 @@ export default function Button({
     className,
   ].join(' ')
 
-  const motionProps = { ...MOTION_PROPS, ...magnetic.handlers, style: magnetic.style }
+  const motionProps = MOTION_PROPS
 
   const content = (
     <>

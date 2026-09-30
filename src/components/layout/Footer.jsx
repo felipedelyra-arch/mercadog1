@@ -10,7 +10,7 @@ import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../../con
 const FOOTER_LINKS = [
   { to: '/consultas', label: 'Consultas veterinárias' },
   { to: '/agendamento', label: 'Agendar banho e tosa' },
-  { to: '/loja', label: 'Loja de produtos' },
+  { to: '/loja', label: 'Farmácia veterinária' },
 ]
 
 /** Redes sociais + WhatsApp. O WhatsApp pisca para puxar o clique. */
@@ -28,11 +28,11 @@ const SOCIALS = [
 export default function Footer() {
   return (
     <footer className="border-t border-sand bg-cream">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:gap-10 sm:px-6 sm:py-12 md:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:gap-10 sm:px-6 sm:py-12 md:grid-cols-3">
         {/* Identidade */}
         <div className="flex flex-col gap-3">
-          <Logo />
-          <p className="max-w-xs text-sm text-clay">{SITE.tagline}.</p>
+          <Logo className="h-12 sm:h-14" />
+          <p className="hidden max-w-xs text-sm text-clay sm:block">{SITE.tagline}.</p>
           <div className="mt-1 flex items-center gap-3">
             {SOCIALS.map(({ icon: Icon, label, href, blink }) => (
               <a
@@ -44,7 +44,7 @@ export default function Footer() {
                 title={label}
                 className={`grid size-11 place-items-center rounded-full transition-colors ${
                   blink
-                    ? 'blink-whatsapp bg-whatsapp text-white hover:bg-whatsapp-dark'
+                    ? 'bg-whatsapp text-white hover:bg-whatsapp-dark'
                     : 'bg-terracotta-100 text-terracotta-600 hover:bg-terracotta-200'
                 }`}
               >
@@ -52,22 +52,23 @@ export default function Footer() {
               </a>
             ))}
           </div>
-          <p className="text-sm text-clay">@mercadogpetshop</p>
+          <p className="hidden text-sm text-clay sm:block">@mercadogpetshop</p>
         </div>
 
         {/* Navegação */}
-        <nav aria-label="Links do rodapé" className="flex flex-col gap-2">
+        {/* no celular esses links já estão no menu (☰) — some para encurtar a página */}
+        <nav aria-label="Links do rodapé" className="hidden flex-col gap-2 md:flex">
           <h3 className="mb-1 font-display text-lg font-semibold text-ink">Serviços</h3>
           <a
             href={buildWhatsAppUrl(WHATSAPP_NUMBERS.veterinario, WHATSAPP_MESSAGES.clinica24h)}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-fit text-sm font-semibold text-terracotta-600 hover:text-terracotta-500"
+            className="flex min-h-11 w-fit items-center text-sm font-semibold text-terracotta-600 hover:text-terracotta-500 sm:min-h-0"
           >
             Emergência veterinária 24h
           </a>
           {FOOTER_LINKS.map(({ to, label }) => (
-            <Link key={to} to={to} className="w-fit text-sm text-clay hover:text-terracotta-600">
+            <Link key={to} to={to} className="flex min-h-11 w-fit items-center text-sm text-clay hover:text-terracotta-600 sm:min-h-0">
               {label}
             </Link>
           ))}
@@ -75,36 +76,42 @@ export default function Footer() {
             href={buildWhatsAppUrl(WHATSAPP_NUMBERS.atendimento, WHATSAPP_MESSAGES.geral)}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-fit text-sm text-clay hover:text-terracotta-600"
+            className="flex min-h-11 w-fit items-center text-sm text-clay hover:text-terracotta-600 sm:min-h-0"
           >
             Fale conosco no WhatsApp
           </a>
         </nav>
 
         {/* Contato e horários */}
-        <div className="flex flex-col gap-2 text-sm text-clay">
+        <div className="flex flex-col gap-0.5 text-sm text-clay sm:gap-2">
           <h3 className="mb-1 font-display text-lg font-semibold text-ink">Contato</h3>
           <p className="flex items-start gap-2">
             <MapPin size={16} className="mt-0.5 shrink-0 text-terracotta-500" aria-hidden="true" />
             {SITE.address}
           </p>
-          <p className="flex items-center gap-2">
+          <a
+            href={`tel:+55${SITE.phone.replace(/\D/g, '')}`}
+            className="flex min-h-11 w-fit items-center gap-2 hover:text-terracotta-600 sm:min-h-0"
+          >
             <Phone size={16} className="shrink-0 text-terracotta-500" aria-hidden="true" />
             {SITE.phone}
-          </p>
+          </a>
           <a
             href={buildWhatsAppUrl(WHATSAPP_NUMBERS.banhoTosa, WHATSAPP_MESSAGES.banhoTosa)}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex w-fit items-center gap-2 hover:text-terracotta-600"
+            className="flex min-h-11 w-fit items-center gap-2 hover:text-terracotta-600 sm:min-h-0"
           >
             <Bath size={16} className="shrink-0 text-terracotta-500" aria-hidden="true" />
             Banho e tosa: {SITE.phoneBanhoTosa}
           </a>
-          <p className="flex items-center gap-2">
+          <a
+            href={`mailto:${SITE.email}`}
+            className="flex min-h-11 w-fit items-center gap-2 hover:text-terracotta-600 sm:min-h-0"
+          >
             <Mail size={16} className="shrink-0 text-terracotta-500" aria-hidden="true" />
             {SITE.email}
-          </p>
+          </a>
           <div className="mt-2 flex flex-col gap-1">
             {SITE.hours.map(({ label, value }) => (
               <p key={label} className="flex items-center gap-2">
@@ -124,11 +131,13 @@ export default function Footer() {
           <PawPrint size={13} className="text-terracotta-500" aria-hidden="true" />
         </p>
         <p>
-          Site desenvolvido por{' '}
-          <span className="font-semibold text-terracotta-600">Fluxo Tech</span>
+          <Link to="/privacidade" className="inline-flex min-h-11 items-center underline underline-offset-2 hover:text-ink sm:min-h-0">
+            Política de privacidade
+          </Link>
+          {' · '}Site desenvolvido por <span className="font-semibold text-terracotta-600">Fluxo Tech</span>
         </p>
-        {/* Espaço para o botão flutuante do WhatsApp não cobrir o texto no celular */}
-        <div aria-hidden="true" className="h-14 sm:h-0" />
+        {/* Espaço para o botão flutuante / barra do carrinho não cobrir o texto no celular */}
+        <div aria-hidden="true" className="h-20 md:h-0" />
       </div>
     </footer>
   )

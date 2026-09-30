@@ -25,3 +25,10 @@ dist-ssr
 
 .vercel
 .env*
+!.env.example
+
+# Planilha de origem dos produtos (os dados já estão no Supabase)
+tabela_produtos_veterinarios.csv
+
+# Anotações da ferramenta de avaliação de design
+.impeccable/

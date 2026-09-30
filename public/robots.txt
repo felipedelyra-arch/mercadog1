@@ -1,0 +1,5 @@
+# O painel da equipe não entra no Google
+User-agent: *
+Disallow: /admin
+
+Sitemap: https://mercadog.vercel.app/sitemap.xml

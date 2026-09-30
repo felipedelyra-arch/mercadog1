@@ -1,18 +1,11 @@
 /**
- * Geração da agenda a partir do horário de funcionamento real.
+ * Geração da agenda a partir da configuração que a equipe mantém no painel
+ * (tabelas `agenda_config` e `agenda_bloqueios`, lidas por agenda_publica).
  *
- * Os dias e horários saem de `src/config/hours.js` — nada é sorteado. O que
- * o site NÃO sabe é quais horários já foram tomados por outro cliente: sem
- * banco de dados não há onde registrar isso. Por isso a tela deixa claro que
- * o horário é um pedido, e a equipe confirma pelo WhatsApp.
+ * A regra é a mesma que o banco aplica no criar_pedido
+ * (motivo_horario_invalido em supabase/004_agenda.sql): se mudar aqui,
+ * mude lá — senão o site oferece um horário que o banco recusa.
  */
-import {
-  CLOSED_DATES,
-  MIN_LEAD_MINUTES,
-  OPENING_HOURS,
-  OPEN_DAYS_SHOWN,
-  SLOT_MINUTES,
-} from '../config/hours'
 
 const WEEKDAY_FMT = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' })
 const DAY_FMT = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' })
@@ -27,79 +20,87 @@ const FULL_FMT = new Intl.DateTimeFormat('pt-BR', {
  * Não use `toISOString()`: ele converte para UTC e, à noite no Brasil (UTC-3),
  * devolve o dia seguinte — a agenda apareceria deslocada em um dia.
  */
-const isoLocal = (date) => {
+export const isoLocal = (date) => {
   const mes = String(date.getMonth() + 1).padStart(2, '0')
   const dia = String(date.getDate()).padStart(2, '0')
   return `${date.getFullYear()}-${mes}-${dia}`
 }
 
+/** 'AAAA-MM-DD' → Date ao meio-dia local (imune a horário de verão). */
+export const fromIso = (iso) => {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d, 12)
+}
+
 /** 'HH:MM' para minutos desde a meia-noite. */
-const toMinutes = (hhmm) => {
+export const toMinutes = (hhmm) => {
   const [h, m] = hhmm.split(':').map(Number)
   return h * 60 + m
 }
 
 /** Minutos desde a meia-noite para 'HH:MM'. */
-const toLabel = (minutes) =>
+export const toLabel = (minutes) =>
   `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`
 
 /**
- * Horários de um dia, a partir das faixas de funcionamento.
- * O último horário começa cedo o bastante para o atendimento terminar dentro
- * da faixa — não oferece 17:45 se a faixa fecha às 18h e o serviço leva 45min.
+ * Todos os horários de um dia pela grade, sem olhar ocupação nem antecedência.
+ * O último começa cedo o bastante para terminar dentro da faixa — não oferece
+ * 17:45 se a faixa fecha às 18h e o atendimento leva 45min.
  */
-function slotsForRanges(ranges, stepMinutes, minStartMinutes) {
+export function slotsDoDia(config, iso) {
+  const faixas = config.semana[String(fromIso(iso).getDay())]
+  if (!faixas) return []
   const slots = []
-  for (const [abre, fecha] of ranges) {
+  for (const [abre, fecha] of faixas) {
     const inicio = toMinutes(abre)
     const fim = toMinutes(fecha)
-    for (let t = inicio; t + stepMinutes <= fim; t += stepMinutes) {
-      if (t >= minStartMinutes) slots.push(toLabel(t))
+    for (let t = inicio; t + config.slot_minutos <= fim; t += config.slot_minutos) {
+      slots.push(toLabel(t))
     }
   }
   return slots
 }
 
-/**
- * Próximos dias abertos com seus horários.
- * @param {'servico'|'consulta'} context - agenda de banho/tosa ou de consultas
- * @param {number} count - quantos dias abertos devolver
- */
-export function generateSchedule(context = 'servico', count = OPEN_DAYS_SHOWN) {
-  const semana = OPENING_HOURS[context] ?? OPENING_HOURS.servico
-  const passo = SLOT_MINUTES[context] ?? 30
+/** Descrição do dia usada nos seletores. */
+export const describeDay = (iso) => {
+  const date = fromIso(iso)
+  return {
+    iso,
+    weekday: WEEKDAY_FMT.format(date).replace('.', ''),
+    label: DAY_FMT.format(date).replace('.', ''),
+    full: FULL_FMT.format(date),
+  }
+}
 
-  const agora = new Date()
-  const hojeIso = isoLocal(agora)
-  // horário mais cedo que ainda pode ser pedido hoje
-  const corteHoje = agora.getHours() * 60 + agora.getMinutes() + MIN_LEAD_MINUTES
+/**
+ * Próximos dias abertos com os horários que ainda podem ser pedidos.
+ * @param {{ agora: string, config: object, bloqueios: Array, ocupados: Array }} agenda
+ *   resposta de agenda_publica — `agora` é a hora local da loja, vinda do banco,
+ *   para o relógio errado de um celular não abrir nem esconder horários.
+ */
+export function generateSchedule({ agora, config, bloqueios, ocupados }) {
+  const [hojeIso, horaAgora] = agora.split('T')
+  const corteHoje = toMinutes(horaAgora) + config.antecedencia_minutos
+  const diaFechado = new Set(bloqueios.filter((b) => !b.horario).map((b) => b.data))
+  const indisponivel = new Set(
+    [...bloqueios.filter((b) => b.horario), ...ocupados].map((b) => `${b.data} ${b.horario}`),
+  )
 
   const days = []
-  const cursor = new Date(agora)
+  const cursor = fromIso(hojeIso)
   // limite de segurança: se tudo estiver fechado, para em 60 dias em vez de girar sem fim
-  const ultimoDia = new Date(agora)
-  ultimoDia.setDate(ultimoDia.getDate() + 60)
-
-  while (days.length < count && cursor <= ultimoDia) {
+  for (let i = 0; i < 60 && days.length < config.dias_exibidos; i++) {
     const iso = isoLocal(cursor)
-    const faixas = semana[cursor.getDay()]
-    const aberto = faixas && !CLOSED_DATES.includes(iso)
-
-    if (aberto) {
-      const slots = slotsForRanges(faixas, passo, iso === hojeIso ? corteHoje : 0)
-      // dia sem horário restante (fim de tarde de hoje, por exemplo) não entra
-      if (slots.length > 0) {
-        days.push({
-          iso,
-          weekday: WEEKDAY_FMT.format(cursor).replace('.', ''),
-          label: DAY_FMT.format(cursor).replace('.', ''),
-          full: FULL_FMT.format(cursor),
-          slots,
-        })
-      }
-    }
-
     cursor.setDate(cursor.getDate() + 1)
+    if (diaFechado.has(iso)) continue
+
+    // antecedência pode passar da meia-noite: 22h + 12h de antecedência corta a manhã seguinte
+    const corte = corteHoje - i * 24 * 60
+    const slots = slotsDoDia(config, iso).filter(
+      (t) => toMinutes(t) >= corte && !indisponivel.has(`${iso} ${t}`),
+    )
+    // dia sem horário restante (fim de tarde de hoje, por exemplo) não entra
+    if (slots.length > 0) days.push({ ...describeDay(iso), slots })
   }
 
   return days

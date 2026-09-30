@@ -4,35 +4,58 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mercadog · Tupã/SP · Petshop e clínica veterinária 24h</title>
     <meta
       name="description"
-      content="Mercadog — petshop com banho, tosa, consultas veterinárias e loja de produtos para o seu pet."
+      content="Petshop e clínica veterinária no centro de Tupã/SP: emergência 24h, consultas, banho e tosa com agendamento online e farmácia veterinária com retirada ou entrega."
     />
     <!-- Combina com a navbar escura: no Android a barra do navegador vira
          extensão do header em vez de uma faixa de cor solta. -->
     <meta name="theme-color" content="#2E2622" />
     <meta name="color-scheme" content="light" />
-    <title>Mercadog · Petshop, banho e tosa e veterinária</title>
+
+    <!-- Endereço público do site. Ao ligar um domínio próprio (ex.: mercadog.com.br),
+         troque aqui, no public/robots.txt e no public/sitemap.xml. -->
+    <link rel="canonical" href="https://mercadog.vercel.app/" />
+
+    <!-- Prévia ao compartilhar o link (WhatsApp, Facebook, Instagram) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Mercadog" />
+    <meta property="og:title" content="Mercadog · Petshop e clínica veterinária 24h em Tupã" />
+    <meta
+      property="og:description"
+      content="Emergência 24h, consultas, banho e tosa com horário marcado pelo site e farmácia veterinária."
+    />
+    <meta property="og:url" content="https://mercadog.vercel.app/" />
+    <meta property="og:image" content="https://mercadog.vercel.app/hero-dog.jpg" />
+    <meta property="og:image:alt" content="Cachorro beagle sorrindo" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Dados da empresa para o Google (resultado local, mapa, telefone) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": ["VeterinaryCare", "PetStore"],
+        "name": "Mercadog Clínica Veterinária e Pet Shop",
+        "url": "https://mercadog.vercel.app/",
+        "image": "https://mercadog.vercel.app/hero-dog.jpg",
+        "telephone": "+55-14-3491-1244",
+        "email": "contato@mercadog.com.br",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "R. Caingangs, 223 - Centro",
+          "addressLocality": "Tupã",
+          "addressRegion": "SP",
+          "postalCode": "17600-070",
+          "addressCountry": "BR"
+        },
+        "sameAs": ["https://instagram.com/mercadogpetshop", "https://facebook.com/mercadogpetshop"]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-
-    <!-- Rolagem suave com inércia (Lenis). Carrega via CDN e falha em silêncio
-         se estiver offline — o site continua rolando normalmente. -->
-    <script defer src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
-    <script>
-      window.addEventListener('load', function () {
-        // Acessibilidade: quem prefere menos movimento rola sem inércia
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-        if (typeof window.Lenis !== 'function') return
-        var lenis = new window.Lenis({ lerp: 0.1, smoothWheel: true })
-        function raf(time) {
-          lenis.raf(time)
-          requestAnimationFrame(raf)
-        }
-        requestAnimationFrame(raf)
-      })
-    </script>
   </body>
 </html>

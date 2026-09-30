@@ -1,27 +1,41 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import {CheckCircle2} from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { scaleIn } from '../../animations/variants'
 import { PET_SIZES } from '../../data/services'
 import { WHATSAPP_NUMBERS, buildWhatsAppUrl } from '../../config/whatsapp'
+import { TIPO_AGENDA, criarPedido } from '../../services/api'
 import Button from '../ui/Button'
 import WhatsAppIcon from '../ui/WhatsAppIcon'
 
 const INITIAL_FORM = { tutor: '', pet: '', porte: '', telefone: '', observacoes: '' }
 
 /**
- * Formulário final do agendamento. Nada é gravado: o pedido existe só como
- * mensagem de WhatsApp, então o formulário valida os dados e monta o texto.
+ * Formulário final do agendamento. Ao enviar, grava o pedido no banco
+ * (status "pendente") e só então libera o botão do WhatsApp — a mensagem
+ * leva o número do pedido, que a equipe usa para achá-lo no painel.
  *
  * `kind` = 'servico' exige o porte do pet (afeta o preço);
  * na 'consulta' o porte aparece igual, só que opcional.
  * `summary` = { itemLabel, day, time } vindos dos passos anteriores.
- * `buildWhatsMessage(form)` gera a mensagem contextual.
+ * `serviceLabel(form)` descreve o serviço como a equipe vai ler no painel.
+ * `buildWhatsMessage(form, { numero })` gera a mensagem contextual.
+ * `initialNote` pré-preenche o motivo/observações (ex.: "Vacina" vindo da Home).
  */
-export default function BookingForm({ kind = 'servico', summary, buildWhatsMessage }) {
-  const [form, setForm] = useState(INITIAL_FORM)
+export default function BookingForm({
+  kind = 'servico',
+  summary,
+  serviceLabel,
+  buildWhatsMessage,
+  initialNote = '',
+}) {
+  const [form, setForm] = useState({ ...INITIAL_FORM, observacoes: initialNote })
   const [errors, setErrors] = useState({})
-  const [ready, setReady] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
+  // { numero } depois que o pedido foi gravado
+  const [pedido, setPedido] = useState(null)
 
   const set = (field) => (e) => {
     setForm((f) => ({ ...f, [field]: e.target.value }))
@@ -38,12 +52,32 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
     return errs
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const errs = validate()
     setErrors(errs)
     if (Object.keys(errs).length > 0) return
-    setReady(true)
+
+    setSending(true)
+    setSubmitError(null)
+    try {
+      const { numero } = await criarPedido({
+        tipo: TIPO_AGENDA[kind],
+        cliente_nome: form.tutor,
+        cliente_telefone: form.telefone,
+        observacoes: form.observacoes,
+        servico: serviceLabel(form),
+        data: summary.day.iso,
+        horario: summary.time,
+        pet_nome: form.pet,
+        pet_porte: PET_SIZES.find((s) => s.id === form.porte)?.label,
+      })
+      setPedido({ numero })
+    } catch (err) {
+      setSubmitError(err.message)
+    } finally {
+      setSending(false)
+    }
   }
 
   const inputClass = (field) =>
@@ -65,7 +99,7 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
 
   return (
     <AnimatePresence mode="wait">
-      {ready ? (
+      {pedido ? (
         /* ---- Resumo + envio pelo WhatsApp ---- */
         <motion.div
           key="success"
@@ -84,23 +118,23 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
           </motion.span>
           <div>
             <h3 className="font-display text-2xl font-semibold text-ink">
-              Tudo pronto para enviar
+              Pedido nº {pedido.numero} registrado
             </h3>
             <p className="mt-1 text-sm text-clay">
               {summary.itemLabel} · {summary.day?.full} às {summary.time}
             </p>
-            {/* Nada foi gravado: o pedido só chega à equipe quando o tutor
-                envia a mensagem, então o texto não promete horário reservado. */}
+            {/* O pedido está gravado, mas o horário só é reservado quando a
+                equipe confirma — o texto não promete o que ainda não aconteceu. */}
             <p className="mt-3 rounded-xl bg-cream px-4 py-3 text-sm text-clay">
               Falta um passo: <strong className="text-ink">envie a mensagem no WhatsApp</strong>{' '}
-              para a equipe receber o pedido. A confirmação chega para você logo depois.
+              para avisar a equipe. O horário fica reservado assim que ela confirmar.
             </p>
           </div>
           <Button
             variant="whatsapp"
             href={buildWhatsAppUrl(
               kind === 'consulta' ? WHATSAPP_NUMBERS.veterinario : WHATSAPP_NUMBERS.banhoTosa,
-              buildWhatsMessage(form),
+              buildWhatsMessage(form, pedido),
             )}
           >
             <WhatsAppIcon size={18} aria-hidden="true" />
@@ -191,7 +225,7 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
                       setForm((f) => ({ ...f, porte: f.porte === id ? '' : id }))
                       setErrors((errs) => ({ ...errs, porte: undefined }))
                     }}
-                    className={`min-h-11 flex-1 rounded-tile border text-sm font-semibold transition-colors ${
+                    className={`h-11 flex-1 rounded-tile border text-sm font-semibold transition-colors ${
                       form.porte === id
                         ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-600 ring-1 ring-terracotta-500'
                         : 'border-sand-dark text-clay hover:border-terracotta-300 hover:bg-terracotta-50'
@@ -207,12 +241,17 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
 
           <div>
             <label htmlFor="observacoes" className="mb-1 block text-sm font-bold text-ink">
-              Observações <span className="font-normal text-clay">(opcional)</span>
+              {kind === 'consulta' ? 'Motivo da consulta' : 'Observações'}{' '}
+              <span className="font-normal text-clay">(opcional)</span>
             </label>
             <textarea
               id="observacoes"
               rows={3}
-              placeholder="Alergias, comportamento, preferências…"
+              placeholder={
+                kind === 'consulta'
+                  ? 'Vacina, check-up, está mancando, não quer comer…'
+                  : 'Alergias, comportamento, preferências…'
+              }
               value={form.observacoes}
               onChange={set('observacoes')}
               className={inputClass('observacoes')}
@@ -225,7 +264,20 @@ export default function BookingForm({ kind = 'servico', summary, buildWhatsMessa
             <strong className="text-ink">{summary.time}</strong>
           </p>
 
-          <Button type="submit" className="w-full sm:w-auto sm:self-end">
+          {submitError && (
+            <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+              {submitError}
+            </p>
+          )}
+
+          <p className="text-xs text-clay">
+            Usamos seus dados só para atender este pedido.{' '}
+            <Link to="/privacidade" className="underline underline-offset-2 hover:text-ink">
+              Política de privacidade
+            </Link>
+          </p>
+
+          <Button type="submit" loading={sending} className="w-full sm:w-auto sm:self-end">
             Continuar para o WhatsApp
           </Button>
         </motion.form>

@@ -5,7 +5,7 @@ import Button from '../components/ui/Button'
 
 export default function NotFound() {
   return (
-    <PageWrapper className="grid place-items-center">
+    <PageWrapper className="grid place-items-center" title="Página não encontrada">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

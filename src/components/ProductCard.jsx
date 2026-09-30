@@ -1,61 +1,43 @@
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Check, FileText, Plus } from 'lucide-react'
 import { useState } from 'react'
-import { fadeUp, SPRING_SNAP } from '../animations/variants'
-import { useTilt } from '../hooks/useTilt'
+import { fadeUp } from '../animations/variants'
 import { formatPrice } from '../utils/format'
-import { getCategoryById, isAvailable, productImageUrl } from '../data/products'
-import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../config/whatsapp'
+import { isAvailable, productFullName, productImageUrl } from '../data/products'
+import { useCart } from '../context/CartContext'
 import { getIcon } from './ui/icons'
-import WhatsAppIcon from './ui/WhatsAppIcon'
 
 /**
- * Card de produto com tilt 3D e spotlight no hover.
+ * Card de produto (grade da farmácia no computador e vitrine da Home).
  * Mostra a foto quando `product.image` existe; sem foto (ou se o arquivo
  * falhar) cai no tile creme com o ícone da categoria.
- * CTA abre o WhatsApp do atendimento com o nome do produto pré-preenchido.
+ * Tocar no card (ou no "+") põe o produto no carrinho; o selo no canto mostra
+ * quantos já estão lá. Sem preço cadastrado mostra "Sob consulta".
  * Produto fora de estoque fica sem CTA e sem clique — só informa a falta.
  */
 export default function ProductCard({ product }) {
-  const category = getCategoryById(product.categoria)
+  const category = product.categorias
   const Icon = getIcon(category?.icon)
-  const tilt = useTilt()
   // foto quebrada não deixa buraco no grid: volta para o ícone da categoria
   const [imageFailed, setImageFailed] = useState(false)
 
   const available = isAvailable(product)
   const imageUrl = imageFailed ? null : productImageUrl(product.image)
 
-  const whatsUrl = buildWhatsAppUrl(
-    WHATSAPP_NUMBERS.atendimento,
-    WHATSAPP_MESSAGES.produto(product.nome),
-  )
+  const cart = useCart()
+  const inCart = cart.quantityOf(product.id)
+  const addToCart = () => cart.add(product)
 
   return (
     <motion.article
-      layout
       variants={fadeUp}
-      {...(available ? tilt.handlers : {})}
-      style={available ? tilt.style : undefined}
-      whileHover={available ? { y: -4 } : undefined}
       whileTap={available ? { scale: 0.985 } : undefined}
-      transition={SPRING_SNAP}
       // card inteiro clicável (atalho); o botão interno segue sendo o acesso por teclado
-      onClick={
-        available ? () => window.open(whatsUrl, '_blank', 'noopener,noreferrer') : undefined
-      }
+      onClick={available ? addToCart : undefined}
       className={`group relative flex h-full flex-col overflow-hidden rounded-card border border-sand bg-white shadow-warm transition-colors ${
         available ? 'cursor-pointer hover:border-terracotta-200' : 'opacity-75'
       }`}
     >
-      {/* Spotlight quente seguindo o cursor */}
-      {available && (
-        <motion.span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          style={{ background: tilt.spotlight }}
-        />
-      )}
-
       {/* Foto do produto — sem ela, tile com o ícone da categoria */}
       <div className="relative grid h-32 place-items-center overflow-hidden bg-gradient-to-b from-terracotta-50 to-cream sm:h-40">
         {imageUrl ? (
@@ -64,27 +46,37 @@ export default function ProductCard({ product }) {
             alt={product.nome}
             loading="lazy"
             onError={() => setImageFailed(true)}
-            className={`size-full object-cover transition-transform duration-500 ease-out motion-reduce:transition-none ${
-              available ? 'group-hover:scale-105' : 'grayscale'
-            }`}
+            className={`size-full object-cover ${available ? '' : 'grayscale'}`}
           />
         ) : (
-          <span
-            className={`grid size-14 place-items-center rounded-arch bg-white text-terracotta-400 shadow-warm-xs ring-1 ring-sand transition-transform duration-500 ease-out motion-reduce:transition-none sm:size-16 ${
-              available ? 'group-hover:-rotate-6 group-hover:scale-108' : ''
-            }`}
-          >
+          <span className="grid size-14 place-items-center rounded-arch bg-white text-terracotta-400 shadow-warm-xs ring-1 ring-sand sm:size-16">
             <Icon size={26} aria-hidden="true" />
           </span>
         )}
 
+        <AnimatePresence>
+          {inCart > 0 && (
+            <motion.span
+              key="qtd"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+              className="absolute top-2.5 right-2.5 z-20 flex h-7 items-center gap-1 rounded-full bg-ink px-2.5 text-xs font-bold text-white sm:top-3 sm:right-3"
+            >
+              <Check size={13} aria-hidden="true" />
+              {inCart}
+              <span className="sr-only">no carrinho</span>
+            </motion.span>
+          )}
+        </AnimatePresence>
+
         {!available ? (
-          <span className="absolute top-2.5 left-2.5 rounded-full bg-clay px-2.5 py-1 text-[10px] font-bold tracking-wide text-white uppercase sm:top-3 sm:left-3 sm:text-[11px]">
+          <span className="absolute top-2.5 left-2.5 rounded-full bg-clay px-2.5 py-1 text-xs font-semibold text-white sm:top-3 sm:left-3">
             Sem estoque
           </span>
         ) : (
           product.destaque && (
-            <span className="absolute top-2.5 left-2.5 rounded-full bg-terracotta-600 px-2.5 py-1 text-[10px] font-bold tracking-wide text-white uppercase sm:top-3 sm:left-3 sm:text-[11px]">
+            <span className="absolute top-2.5 left-2.5 rounded-full bg-terracotta-600 px-2.5 py-1 text-xs font-semibold text-white sm:top-3 sm:left-3">
               Popular
             </span>
           )
@@ -92,36 +84,49 @@ export default function ProductCard({ product }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
-        <span className="text-[10px] font-bold tracking-[0.12em] text-clay uppercase sm:text-[11px]">
+        <span className="text-xs text-clay">
           {category?.label}
         </span>
         <h3 className="flex-1 text-[0.8125rem] leading-snug font-semibold text-ink sm:text-sm">
           {product.nome}
         </h3>
+        {product.detalhes && (
+          <p className="text-xs leading-snug text-clay sm:text-[0.8125rem]">{product.detalhes}</p>
+        )}
+        {product.exige_receita && (
+          <p className="flex items-center gap-1 text-xs font-semibold text-terracotta-700">
+            <FileText size={13} aria-hidden="true" />
+            Exige receita veterinária
+          </p>
+        )}
         <div className="mt-1.5 flex items-center justify-between gap-2 border-t border-sand pt-2.5">
           <span
             className={`font-display text-base font-semibold sm:text-lg ${
               available ? 'text-terracotta-600' : 'text-clay'
             }`}
           >
-            {formatPrice(product.preco)}
+            {product.preco == null ? (
+              <span className="text-sm">Sob consulta</span>
+            ) : (
+              formatPrice(product.preco)
+            )}
           </span>
           {available ? (
-            <motion.a
-              href={whatsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Pedir ${product.nome} pelo WhatsApp`}
-              // evita abrir duas vezes (clique também sobe para o card)
-              onClick={(e) => e.stopPropagation()}
-              whileHover={{ scale: 1.08 }}
+            <motion.button
+              type="button"
+              aria-label={`Adicionar ${productFullName(product)} ao carrinho`}
+              // evita adicionar duas vezes (clique também sobe para o card)
+              onClick={(e) => {
+                e.stopPropagation()
+                addToCart()
+              }}
               whileTap={{ scale: 0.94 }}
-              className="relative z-20 grid size-10 shrink-0 place-items-center rounded-full bg-terracotta-500 text-white transition-colors hover:bg-terracotta-600"
+              className="relative z-20 grid size-11 shrink-0 place-items-center rounded-full bg-terracotta-500 text-white transition-colors hover:bg-terracotta-600"
             >
-              <WhatsAppIcon size={17} aria-hidden="true" />
-            </motion.a>
+              <Plus size={19} aria-hidden="true" />
+            </motion.button>
           ) : (
-            <span className="text-[11px] font-semibold text-clay">
+            <span className="text-xs font-semibold text-clay">
               Não temos no momento
             </span>
           )}
