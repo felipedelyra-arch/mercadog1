@@ -182,7 +182,7 @@ export default function Header() {
               target="_blank"
               rel="noopener noreferrer"
               whileTap={{ scale: 0.95 }}
-              className="flex h-11 items-center gap-1.5 rounded-full bg-terracotta-500 pr-4 pl-3.5 text-[0.9375rem] font-bold text-white"
+              className="pulso-emergencia flex h-11 items-center gap-1.5 rounded-full bg-red-600 pr-4 pl-3.5 text-[0.9375rem] font-bold text-white"
             >
               <Siren size={18} aria-hidden="true" />
               Emergência
