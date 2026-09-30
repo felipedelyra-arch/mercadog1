@@ -2,4 +2,4 @@
 User-agent: *
 Disallow: /admin
 
-Sitemap: https://mercadog.vercel.app/sitemap.xml
+Sitemap: https://mercadog-drab.vercel.app/sitemap.xml

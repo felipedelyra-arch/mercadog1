@@ -48,7 +48,7 @@ src/
 ## Publicação
 
 - Na Vercel: `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` em Settings → Environment Variables.
-- Endereço do site (`https://mercadog.vercel.app`) está em `index.html` (canonical, prévia de compartilhamento, dados da empresa), `public/robots.txt` e `public/sitemap.xml` — troque nos três ao ligar um domínio próprio.
+- Endereço do site (`https://mercadog-drab.vercel.app`) está em `index.html` (canonical, prévia de compartilhamento, dados da empresa), `public/robots.txt` e `public/sitemap.xml` — troque nos três ao ligar um domínio próprio.
 - Política de privacidade em `/privacidade` (`src/pages/Privacidade.jsx`), com link no rodapé e nos formulários.
 - Em Authentication → Sign In / Providers, desligue "Allow new users to sign up": as contas da equipe são criadas à mão.
 - `src/services/api.js` é a única porta de dados das páginas; `src/lib/supabase.js` guarda o cliente.
