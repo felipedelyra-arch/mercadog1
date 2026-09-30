@@ -11,7 +11,7 @@ export const SITE = {
   phone: '(14) 3491-1244',
   /** WhatsApp exclusivo do banho e tosa */
   phoneBanhoTosa: '(14) 99629-6210',
-  email: 'contato@mercadog.com.br',
+  email: 'Wilsonguiari@hotmail.com',
   hours: [{ label: 'Todos os dias', value: 'Atendimento 24 horas' }],
   instagram: 'https://instagram.com/mercadogpetshop',
   facebook: 'https://facebook.com/mercadogpetshop',

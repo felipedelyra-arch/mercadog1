@@ -30,7 +30,7 @@ insert into public.site_config (id, dados) values (1, '{
   "address": "R. Caingangs, 223 · Centro · Tupã/SP · 17600-070",
   "addressShort": "R. Caingangs, 223, Centro",
   "phone": "(14) 3491-1244",
-  "email": "contato@mercadog.com.br",
+  "email": "Wilsonguiari@hotmail.com",
   "hours": [{"label": "Todos os dias", "value": "Atendimento 24 horas"}],
   "instagram": "https://instagram.com/mercadogpetshop",
   "facebook": "https://facebook.com/mercadogpetshop",
