@@ -43,6 +43,7 @@ src/
 - `supabase/006_agenda_unica.sql` — uma grade de horários para banho/tosa e consultas; cada um com a sua ocupação.
 - `supabase/007_site_config.sql` — dados da loja (endereço, telefones, WhatsApp de cada setor, redes sociais) e equipe veterinária, editados na aba Ajustes. O site lê na abertura (`src/config/siteConfig.js`, com cópia no navegador); `src/config/site.js` e `whatsapp.js` ficam como reserva.
 - `supabase/008_receita.sql` — marcação "exige receita" nos produtos (painel → Produtos); aparece no card, no carrinho, na mensagem e no pedido.
+- `supabase/009_seguranca.sql` — freios contra spam no `criar_pedido` (por telefone, por IP e teto geral por hora; tamanho máximo do pedido) e bucket de fotos só com imagem até 5 MB.
 - `supabase/lancamento_limpeza.sql` — rodar uma vez no dia do lançamento: apaga pedidos "TESTE…" e bloqueios de teste e recomeça a numeração.
 
 ## Publicação

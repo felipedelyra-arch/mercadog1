@@ -79,6 +79,7 @@ const PEDIDO_ERROS = {
   horario_fora_da_agenda: 'A agenda mudou enquanto você escolhia. Escolha o horário de novo, por favor.',
   horario_em_cima_da_hora: 'Esse horário está muito próximo. Escolha um um pouco mais tarde.',
   muitos_pedidos: 'Recebemos vários pedidos deste telefone. Fale com a gente pelo WhatsApp.',
+  limite_pedidos: 'Recebemos muitos pedidos em pouco tempo. Fale com a gente pelo WhatsApp.',
   produto_sem_estoque: 'Um item do carrinho acabou de sair de estoque. Confira o carrinho.',
   produto_inexistente: 'Um item do carrinho não está mais na loja. Confira o carrinho.',
   telefone_invalido: 'Confira o telefone com DDD.',
