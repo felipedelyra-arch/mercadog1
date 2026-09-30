@@ -15,7 +15,7 @@ const NAV_LINKS = [
   { to: '/', label: 'Início' },
   { to: '/agendamento', label: 'Banho e Tosa' },
   { to: '/consultas', label: 'Consultas' },
-  { to: '/loja', label: 'Farmácia' },
+  { to: '/loja', label: 'Loja' },
 ]
 
 /** Sacola com contador; o número "pula" a cada item novo. */

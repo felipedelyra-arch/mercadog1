@@ -50,7 +50,7 @@ export default function Home() {
           </h1>
           <p className="max-w-lg text-base leading-relaxed text-clay sm:text-lg">
             Petshop e clínica veterinária no centro de Tupã. Emergência a qualquer hora, consultas,
-            banho e tosa e farmácia veterinária.
+            banho e tosa e loja de produtos veterinários.
           </p>
 
           <div className="grid w-full grid-cols-1 gap-2.5 sm:flex sm:w-auto sm:flex-wrap sm:gap-3">
@@ -161,13 +161,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- Farmácia ---------- */}
-      <section aria-labelledby="farmacia">
+      {/* ---------- Loja ---------- */}
+      <section aria-labelledby="loja">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-12 sm:gap-8 sm:px-6 lg:py-20">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
             <SectionHeading
-              id="farmacia"
-              title="Farmácia veterinária"
+              id="loja"
+              title="Loja"
               subtitle="Medicamentos e cuidados com orientação dos nossos veterinários. Monte o pedido e finalize pelo WhatsApp."
               align="left"
             />

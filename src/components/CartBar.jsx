@@ -5,9 +5,9 @@ import { useCart } from '../context/CartContext'
 import { formatPrice } from '../utils/format'
 
 /**
- * Barra do carrinho no rodapé da tela, só no celular e só na farmácia:
+ * Barra do carrinho no rodapé da tela, só no celular e só na loja:
  * aparece quando há item no carrinho e fica no alcance do polegar — o ícone
- * do topo fica longe. Fora da farmácia ela cobriria formulários (agendamento).
+ * do topo fica longe. Fora da loja ela cobriria formulários (agendamento).
  */
 export default function CartBar() {
   const { pathname } = useLocation()

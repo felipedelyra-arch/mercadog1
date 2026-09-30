@@ -49,7 +49,7 @@ export default function Privacidade() {
         <h2 className={h2}>O que coletamos e para quê</h2>
         <ul className="mt-3 flex list-disc flex-col gap-2 pl-5">
           <li className={li}>
-            <strong className="text-ink">Pedidos da farmácia:</strong> nome, telefone, os produtos escolhidos e, se
+            <strong className="text-ink">Pedidos da loja:</strong> nome, telefone, os produtos escolhidos e, se
             você pedir entrega, o endereço. Usamos para separar, confirmar e entregar o pedido.
           </li>
           <li className={li}>

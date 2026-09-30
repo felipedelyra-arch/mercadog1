@@ -8,7 +8,7 @@ import { useCart } from '../context/CartContext'
 import { getIcon } from './ui/icons'
 
 /**
- * Card de produto (grade da farmácia no computador e vitrine da Home).
+ * Card de produto (grade da loja no computador e vitrine da Home).
  * Mostra a foto quando `product.image` existe; sem foto (ou se o arquivo
  * falhar) cai no tile creme com o ícone da categoria.
  * Tocar no card (ou no "+") põe o produto no carrinho; o selo no canto mostra

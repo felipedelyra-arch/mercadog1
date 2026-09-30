@@ -5,7 +5,7 @@ import WhatsAppIcon from './ui/WhatsAppIcon'
 
 /**
  * Botão flutuante de WhatsApp.
- * - Fica fora da farmácia: lá ele cobria o "+" dos produtos da coluna da direita
+ * - Fica fora da loja: lá ele cobria o "+" dos produtos da coluna da direita
  *   (o WhatsApp do pedido já está no carrinho).
  * `bottom-safe` respeita a barra de gestos do iPhone.
  */

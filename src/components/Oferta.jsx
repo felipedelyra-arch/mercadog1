@@ -24,7 +24,7 @@ function proximoHorario(dias) {
 
 /**
  * O que a casa oferece, com um dado vivo em cada linha: próximo horário
- * livre, preço inicial, quantos produtos há na farmácia. É o que diferencia
+ * livre, preço inicial, quantos produtos há na loja. É o que diferencia
  * do "somos completos" genérico — e ajuda a decidir sem abrir outra página.
  */
 export default function Oferta({ services, products }) {
@@ -64,11 +64,11 @@ export default function Oferta({ services, products }) {
       to: '/agendamento',
     },
     {
-      titulo: 'Farmácia veterinária',
+      titulo: 'Loja',
       texto: 'Antipulgas, antibióticos, suplementos e mais. Peça pelo site e retire ou receba em casa.',
-      rotulo: 'Na farmácia hoje',
+      rotulo: 'Na loja hoje',
       fato: emEstoque ? `${emEstoque} produtos` : null,
-      acao: 'Ver a farmácia',
+      acao: 'Ver a loja',
       to: '/loja',
     },
     {
@@ -87,7 +87,7 @@ export default function Oferta({ services, products }) {
         <div className="grid gap-2 sm:gap-4 lg:grid-cols-2 lg:items-end lg:gap-16">
           <SectionHeading id="oferta" title="Tudo num endereço só" align="left" />
           <p className="max-w-lg text-base leading-relaxed text-clay sm:text-lg">
-            Clínica, banho e tosa e farmácia na mesma casa, no centro de Tupã. Veja o que está livre agora e já
+            Clínica, banho e tosa e loja na mesma casa, no centro de Tupã. Veja o que está livre agora e já
             resolva por aqui.
           </p>
         </div>

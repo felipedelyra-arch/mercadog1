@@ -10,7 +10,7 @@ import { WHATSAPP_NUMBERS, WHATSAPP_MESSAGES, buildWhatsAppUrl } from '../../con
 const FOOTER_LINKS = [
   { to: '/consultas', label: 'Consultas veterinárias' },
   { to: '/agendamento', label: 'Agendar banho e tosa' },
-  { to: '/loja', label: 'Farmácia veterinária' },
+  { to: '/loja', label: 'Loja' },
 ]
 
 /** Redes sociais + WhatsApp. O WhatsApp pisca para puxar o clique. */

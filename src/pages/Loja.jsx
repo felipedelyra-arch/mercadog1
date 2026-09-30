@@ -49,11 +49,11 @@ export default function Loja() {
   const restantes = filtered.length - visiveis.length
 
   return (
-    <PageWrapper title="Farmácia veterinária">
+    <PageWrapper title="Loja">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6">
         <SectionHeading
           as="h1"
-          title="Farmácia veterinária"
+          title="Loja"
           subtitle="Adicione ao carrinho e finalize o pedido pelo WhatsApp. Retire na loja ou receba em casa."
           align="left"
         />
