@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { AlertTriangle, ArrowLeft, CalendarDays, Check, Phone, RotateCcw, X } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Banknote, CalendarDays, Check, MapPin, Phone, RotateCcw, Store, Truck, X } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { Skeleton } from '../components/ui/Skeleton'
 import WhatsAppIcon from '../components/ui/WhatsAppIcon'
 import { formatPrice } from '../utils/format'
 import { conflitos, getPedido } from './api'
 import { useResponder } from './useResponder'
+import { EntregaTag } from './ui'
 import {
   STATUS,
   TIPO_LABEL,
@@ -82,6 +83,8 @@ export default function Pedido() {
   }
 
   const status = STATUS[pedido.status]
+  // o carrinho grava a forma de pagamento da entrega na 1ª linha das observações
+  const pagamento = pedido.observacoes?.match(/^Pagamento: (.+)$/m)?.[1]
   const card = 'rounded-card border border-sand bg-white p-4 shadow-warm-xs sm:p-5'
   const titulo = 'mb-2 text-xs font-bold tracking-[0.12em] text-clay uppercase'
 
@@ -100,6 +103,7 @@ export default function Pedido() {
         <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${status.className}`}>
           {status.label}
         </span>
+        <EntregaTag pedido={pedido} grande />
         <p className="w-full text-sm text-clay">
           {TIPO_LABEL[pedido.tipo]} · recebido {formatCriadoEm(pedido.created_at)}
         </p>
@@ -153,14 +157,39 @@ export default function Pedido() {
 
         {/* O que foi pedido */}
         {pedido.tipo === 'loja' ? (
-          <section className={card}>
-            <h2 className={titulo}>{pedido.entrega === 'entrega' ? 'Entrega' : 'Retirada na loja'}</h2>
-            {pedido.entrega === 'entrega' ? (
-              <p className="font-semibold text-ink">{pedido.endereco}</p>
-            ) : (
-              <p className="text-clay">O cliente vai buscar na loja.</p>
-            )}
-          </section>
+          pedido.entrega === 'entrega' ? (
+            <section className="rounded-card border-2 border-sky-300 bg-sky-50 p-4 shadow-warm-xs sm:p-5">
+              <h2 className="mb-2 flex items-center gap-2 text-sm font-bold tracking-[0.12em] text-sky-800 uppercase">
+                <Truck size={20} aria-hidden="true" />
+                Entregar no endereço
+              </h2>
+              <p className="text-lg font-semibold text-ink">{pedido.endereco}</p>
+              {pagamento && (
+                <p className="mt-2 flex items-center gap-2 font-semibold text-ink">
+                  <Banknote size={18} className="shrink-0 text-sky-700" aria-hidden="true" />
+                  {pagamento}
+                </p>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pedido.endereco ?? '')}`}
+                className="mt-3"
+              >
+                <MapPin size={16} aria-hidden="true" />
+                Abrir no mapa
+              </Button>
+            </section>
+          ) : (
+            <section className="rounded-card border-2 border-violet-300 bg-violet-50 p-4 shadow-warm-xs sm:p-5">
+              <h2 className="mb-2 flex items-center gap-2 text-sm font-bold tracking-[0.12em] text-violet-800 uppercase">
+                <Store size={20} aria-hidden="true" />
+                Retirada na loja
+              </h2>
+              <p className="text-lg font-semibold text-ink">O cliente vem buscar no balcão.</p>
+              <p className="mt-1 text-sm text-clay">Separe os itens e deixe com o nº #{pedido.numero}.</p>
+            </section>
+          )
         ) : (
           <section className={card}>
             <h2 className={titulo}>Agendamento</h2>

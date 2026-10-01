@@ -5,6 +5,7 @@ import Button from '../components/ui/Button'
 import { Skeleton } from '../components/ui/Skeleton'
 import { listPedidos, onPedidosChange } from './api'
 import { STATUS, TIPO_LABEL, formatCriadoEm, resumo } from './pedidoInfo'
+import { EntregaTag } from './ui'
 import { useResponder } from './useResponder'
 
 const FILTROS = [
@@ -145,6 +146,7 @@ export default function Pedidos() {
                       <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${status.className}`}>
                         {status.label}
                       </span>
+                      <EntregaTag pedido={p} />
                     </p>
                     <p className="truncate text-sm text-clay">
                       {TIPO_LABEL[p.tipo]} · {resumo(p)}

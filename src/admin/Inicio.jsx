@@ -13,6 +13,7 @@ import {
   tocarSom,
 } from './alertas'
 import { STATUS, TIPO_LABEL, formatCriadoEm, resumo } from './pedidoInfo'
+import { EntregaTag } from './ui'
 import { useResponder } from './useResponder'
 
 const saudacao = (hora) => (hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite')
@@ -111,6 +112,7 @@ export default function Inicio({ membro }) {
                     <p className="flex flex-wrap items-center gap-x-2">
                       <span className="font-bold text-ink">#{p.numero}</span>
                       <span className="truncate font-semibold text-ink">{p.cliente_nome}</span>
+                      <EntregaTag pedido={p} />
                     </p>
                     <p className="truncate text-sm text-clay">
                       {TIPO_LABEL[p.tipo]} · {resumo(p)}
