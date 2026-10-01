@@ -76,7 +76,7 @@ export function mensagemCliente(p, status) {
         `Sem preço no site: ${semPreco.join(', ')}. Te passamos o valor antes de fechar.`,
       '',
       'Qualquer dúvida, é só responder aqui.',
-      linkCliente(p) && `Para acompanhar ou cancelar: ${linkCliente(p)}`,
+      linkCliente(p) && `Caso queira cancelar, é só cancelar pelo link: ${linkCliente(p)}`,
     ]
       .filter((linha) => linha !== false && linha != null)
       .join('\n')
@@ -94,7 +94,7 @@ export function mensagemCliente(p, status) {
     `Endereço: ${SITE.addressShort}`,
     '',
     'Se precisar remarcar, é só responder aqui.',
-    linkCliente(p) && `Para acompanhar ou cancelar: ${linkCliente(p)}`,
+    linkCliente(p) && `Caso queira cancelar (até 2 horas antes), é só cancelar pelo link: ${linkCliente(p)}`,
   ]
     .filter((linha) => linha != null)
     .join('\n')
