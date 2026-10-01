@@ -53,17 +53,27 @@ drop policy if exists "categorias leitura publica" on public.categorias;
 create policy "categorias leitura publica" on public.categorias
   for select using (true);
 
-drop policy if exists "categorias escrita equipe" on public.categorias;
-create policy "categorias escrita equipe" on public.categorias
-  for all to authenticated using (true) with check (true);
 
 drop policy if exists "produtos leitura publica" on public.produtos;
 create policy "produtos leitura publica" on public.produtos
   for select using (true);
 
-drop policy if exists "produtos escrita equipe" on public.produtos;
-create policy "produtos escrita equipe" on public.produtos
-  for all to authenticated using (true) with check (true);
+-- Escrita: provisória (qualquer logado) só na primeira instalação; o 002
+-- troca por "só a equipe". Se já existe, não mexe — rodar este arquivo de
+-- novo não pode afrouxar a regra do 002.
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'categorias'
+                   and policyname = 'categorias escrita equipe') then
+    create policy "categorias escrita equipe" on public.categorias
+      for all to authenticated using (true) with check (true);
+  end if;
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'produtos'
+                   and policyname = 'produtos escrita equipe') then
+    create policy "produtos escrita equipe" on public.produtos
+      for all to authenticated using (true) with check (true);
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Fotos: bucket público "produtos"
@@ -76,7 +86,13 @@ drop policy if exists "fotos leitura publica" on storage.objects;
 create policy "fotos leitura publica" on storage.objects
   for select using (bucket_id = 'produtos');
 
-drop policy if exists "fotos escrita equipe" on storage.objects;
-create policy "fotos escrita equipe" on storage.objects
-  for all to authenticated
-  using (bucket_id = 'produtos') with check (bucket_id = 'produtos');
+-- mesma ideia: não sobrescreve a regra "só a equipe" criada no 002
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects'
+                   and policyname = 'fotos escrita equipe') then
+    create policy "fotos escrita equipe" on storage.objects
+      for all to authenticated
+      using (bucket_id = 'produtos') with check (bucket_id = 'produtos');
+  end if;
+end $$;
