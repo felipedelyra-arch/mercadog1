@@ -7,11 +7,51 @@ import { EASE } from '../animations/variants'
 import { useCart } from '../context/CartContext'
 import { WHATSAPP_MESSAGES, WHATSAPP_NUMBERS, buildWhatsAppUrl } from '../config/whatsapp'
 import { criarPedido } from '../services/api'
-import { formatPrice } from '../utils/format'
+import { formatPrice, parsePreco } from '../utils/format'
 import Button from './ui/Button'
 import WhatsAppIcon from './ui/WhatsAppIcon'
 
-const INITIAL_FORM = { nome: '', telefone: '', entrega: 'retirada', endereco: '', observacoes: '' }
+const INITIAL_FORM = {
+  nome: '',
+  telefone: '',
+  entrega: 'retirada',
+  cep: '',
+  rua: '',
+  numero: '',
+  complemento: '',
+  bairro: '',
+  cidade: 'Tupã',
+  referencia: '',
+  pagamento: 'pix',
+  troco: '',
+  semTroco: false,
+  observacoes: '',
+}
+
+const PAGAMENTOS = [
+  ['pix', 'Pix'],
+  ['cartao', 'Cartão'],
+  ['dinheiro', 'Dinheiro'],
+]
+
+/** "17600070" → "17600-070" enquanto digita. */
+const maskCep = (v) => {
+  const d = v.replace(/\D/g, '').slice(0, 8)
+  return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d
+}
+
+/** Endereço numa linha só: é o que vai para o banco, o painel e o WhatsApp. */
+const montarEndereco = (f) =>
+  `${f.rua.trim()}, ${f.numero.trim()}${f.complemento.trim() ? ` - ${f.complemento.trim()}` : ''}` +
+  ` - ${f.bairro.trim()}, ${f.cidade.trim()} - CEP ${f.cep}` +
+  (f.referencia.trim() ? ` (ref.: ${f.referencia.trim()})` : '')
+
+const montarPagamento = (f) => {
+  if (f.pagamento === 'pix') return 'Pix'
+  if (f.pagamento === 'cartao') return 'Cartão na entrega'
+  if (f.semTroco) return 'Dinheiro, sem troco'
+  return `Dinheiro, troco para ${formatPrice(parsePreco(f.troco))}`
+}
 
 /**
  * Gaveta do carrinho, pela direita. Três telas:
@@ -59,12 +99,53 @@ export default function CartDrawer() {
     setErrors((errs) => ({ ...errs, [field]: undefined }))
   }
 
+  // CEP completo → busca rua, bairro e cidade no ViaCEP. Se falhar, o
+  // cliente só preenche à mão; nada trava o pedido.
+  const [buscandoCep, setBuscandoCep] = useState(false)
+  const setCep = async (e) => {
+    const cep = maskCep(e.target.value)
+    setForm((f) => ({ ...f, cep }))
+    setErrors((errs) => ({ ...errs, cep: undefined }))
+    const digits = cep.replace(/\D/g, '')
+    if (digits.length !== 8) return
+    setBuscandoCep(true)
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`)
+      const data = await res.json()
+      if (data.erro) {
+        setErrors((errs) => ({ ...errs, cep: 'CEP não encontrado. Confira ou preencha o endereço abaixo.' }))
+        return
+      }
+      setForm((f) => ({
+        ...f,
+        rua: data.logradouro || f.rua,
+        bairro: data.bairro || f.bairro,
+        cidade: data.localidade || f.cidade,
+      }))
+      setErrors((errs) => ({ ...errs, rua: undefined, bairro: undefined, cidade: undefined }))
+    } catch {
+      // sem internet / ViaCEP fora: segue no preenchimento manual
+    } finally {
+      setBuscandoCep(false)
+    }
+  }
+
   const validate = () => {
     const errs = {}
     if (form.nome.trim().length < 3) errs.nome = 'Informe o seu nome completo.'
     if (form.telefone.replace(/\D/g, '').length < 10) errs.telefone = 'Informe um telefone com DDD.'
-    if (form.entrega === 'entrega' && form.endereco.trim().length < 8)
-      errs.endereco = 'Informe rua, número e bairro.'
+    if (form.entrega === 'entrega') {
+      if (form.cep.replace(/\D/g, '').length !== 8) errs.cep = 'Informe o CEP com 8 dígitos.'
+      if (form.rua.trim().length < 3) errs.rua = 'Informe a rua.'
+      if (!form.numero.trim()) errs.numero = 'Informe o número (ou "s/n").'
+      if (form.bairro.trim().length < 2) errs.bairro = 'Informe o bairro.'
+      if (form.cidade.trim().length < 2) errs.cidade = 'Informe a cidade.'
+      if (form.pagamento === 'dinheiro' && !form.semTroco) {
+        const troco = parsePreco(form.troco)
+        if (troco == null || Number.isNaN(troco)) errs.troco = 'Informe para quanto precisa de troco.'
+        else if (troco <= cart.total) errs.troco = `O valor precisa ser maior que ${formatPrice(cart.total)}.`
+      }
+    }
     return errs
   }
 
@@ -74,6 +155,13 @@ export default function CartDrawer() {
     setErrors(errs)
     if (Object.keys(errs).length > 0) return
 
+    const entrega = form.entrega === 'entrega'
+    const endereco = entrega ? montarEndereco(form) : ''
+    const pagamento = entrega ? montarPagamento(form) : null
+    const observacoes = [pagamento && `Pagamento: ${pagamento}`, form.observacoes.trim()]
+      .filter(Boolean)
+      .join('\n')
+
     setSending(true)
     setSubmitError(null)
     try {
@@ -82,8 +170,8 @@ export default function CartDrawer() {
         cliente_nome: form.nome,
         cliente_telefone: form.telefone,
         entrega: form.entrega,
-        endereco: form.endereco,
-        observacoes: form.observacoes,
+        endereco,
+        observacoes,
         itens: cart.items.map((i) => ({ produto_id: i.id, quantidade: i.quantidade })),
       })
       const message = WHATSAPP_MESSAGES.pedidoLoja({
@@ -92,7 +180,8 @@ export default function CartDrawer() {
         total: formatPrice(cart.total),
         sobConsulta: cart.sobConsulta,
         entrega: form.entrega,
-        endereco: form.endereco.trim(),
+        endereco,
+        pagamento,
       })
       setPedido({ numero, message })
       setStep('enviado')
@@ -107,6 +196,15 @@ export default function CartDrawer() {
   const inputClass = (field) =>
     `w-full rounded-tile border bg-white px-4 py-3 text-ink placeholder:text-clay/60 transition-colors focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 focus:outline-none ${
       errors[field] ? 'border-red-500 bg-red-50/40' : 'border-sand-dark'
+    }`
+
+  const labelClass = 'mb-1 block text-sm font-bold text-ink'
+
+  const optionClass = (active) =>
+    `min-h-11 flex-1 rounded-tile border text-sm font-semibold transition-colors ${
+      active
+        ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-600 ring-1 ring-terracotta-500'
+        : 'border-sand-dark text-clay hover:border-terracotta-300 hover:bg-terracotta-50'
     }`
 
   const fieldError = (field) =>
@@ -306,12 +404,11 @@ export default function CartDrawer() {
                           type="button"
                           role="radio"
                           aria-checked={form.entrega === id}
-                          onClick={() => setForm((f) => ({ ...f, entrega: id }))}
-                          className={`min-h-11 flex-1 rounded-tile border text-sm font-semibold transition-colors ${
-                            form.entrega === id
-                              ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-600 ring-1 ring-terracotta-500'
-                              : 'border-sand-dark text-clay hover:border-terracotta-300 hover:bg-terracotta-50'
-                          }`}
+                          onClick={() => {
+                            setForm((f) => ({ ...f, entrega: id }))
+                            setErrors({})
+                          }}
+                          className={optionClass(form.entrega === id)}
                         >
                           {label}
                         </button>
@@ -320,21 +417,171 @@ export default function CartDrawer() {
                   </fieldset>
 
                   {form.entrega === 'entrega' && (
-                    <div>
-                      <label htmlFor="cart-endereco" className="mb-1 block text-sm font-bold text-ink">
-                        Endereço de entrega
-                      </label>
-                      <input
-                        id="cart-endereco"
-                        autoComplete="street-address"
-                        placeholder="Rua, número, bairro"
-                        value={form.endereco}
-                        onChange={set('endereco')}
-                        aria-invalid={Boolean(errors.endereco)}
-                        className={inputClass('endereco')}
-                      />
-                      {fieldError('endereco')}
-                    </div>
+                    <>
+                      <div className="grid grid-cols-[8.5rem_1fr] gap-3">
+                        <div>
+                          <label htmlFor="cart-cep" className={labelClass}>
+                            CEP
+                          </label>
+                          <input
+                            id="cart-cep"
+                            inputMode="numeric"
+                            autoComplete="postal-code"
+                            placeholder="17600-000"
+                            value={form.cep}
+                            onChange={setCep}
+                            aria-invalid={Boolean(errors.cep)}
+                            className={inputClass('cep')}
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="cart-cidade" className={labelClass}>
+                            Cidade
+                          </label>
+                          <input
+                            id="cart-cidade"
+                            autoComplete="address-level2"
+                            maxLength={40}
+                            value={form.cidade}
+                            onChange={set('cidade')}
+                            aria-invalid={Boolean(errors.cidade)}
+                            className={inputClass('cidade')}
+                          />
+                        </div>
+                      </div>
+                      {buscandoCep && <p className="-mt-2 text-xs text-clay">Buscando endereço…</p>}
+                      {fieldError('cep')}
+                      {fieldError('cidade')}
+
+                      <div>
+                        <label htmlFor="cart-rua" className={labelClass}>
+                          Rua
+                        </label>
+                        <input
+                          id="cart-rua"
+                          autoComplete="address-line1"
+                          maxLength={100}
+                          value={form.rua}
+                          onChange={set('rua')}
+                          aria-invalid={Boolean(errors.rua)}
+                          className={inputClass('rua')}
+                        />
+                        {fieldError('rua')}
+                      </div>
+
+                      <div className="grid grid-cols-[6.5rem_1fr] gap-3">
+                        <div>
+                          <label htmlFor="cart-numero" className={labelClass}>
+                            Número
+                          </label>
+                          <input
+                            id="cart-numero"
+                            maxLength={10}
+                            value={form.numero}
+                            onChange={set('numero')}
+                            aria-invalid={Boolean(errors.numero)}
+                            className={inputClass('numero')}
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="cart-complemento" className={labelClass}>
+                            Complemento <span className="font-normal text-clay">(opcional)</span>
+                          </label>
+                          <input
+                            id="cart-complemento"
+                            autoComplete="address-line2"
+                            placeholder="Apto, bloco, casa 2…"
+                            maxLength={40}
+                            value={form.complemento}
+                            onChange={set('complemento')}
+                            className={inputClass('complemento')}
+                          />
+                        </div>
+                      </div>
+                      {fieldError('numero')}
+
+                      <div>
+                        <label htmlFor="cart-bairro" className={labelClass}>
+                          Bairro
+                        </label>
+                        <input
+                          id="cart-bairro"
+                          autoComplete="address-level3"
+                          maxLength={50}
+                          value={form.bairro}
+                          onChange={set('bairro')}
+                          aria-invalid={Boolean(errors.bairro)}
+                          className={inputClass('bairro')}
+                        />
+                        {fieldError('bairro')}
+                      </div>
+
+                      <div>
+                        <label htmlFor="cart-referencia" className={labelClass}>
+                          Ponto de referência <span className="font-normal text-clay">(opcional)</span>
+                        </label>
+                        <input
+                          id="cart-referencia"
+                          placeholder="Perto de…, portão verde…"
+                          maxLength={60}
+                          value={form.referencia}
+                          onChange={set('referencia')}
+                          className={inputClass('referencia')}
+                        />
+                      </div>
+
+                      <fieldset>
+                        <legend className={labelClass}>Pagamento na entrega</legend>
+                        <div className="flex gap-2" role="radiogroup">
+                          {PAGAMENTOS.map(([id, label]) => (
+                            <button
+                              key={id}
+                              type="button"
+                              role="radio"
+                              aria-checked={form.pagamento === id}
+                              onClick={() => {
+                                setForm((f) => ({ ...f, pagamento: id }))
+                                setErrors((errs) => ({ ...errs, troco: undefined }))
+                              }}
+                              className={optionClass(form.pagamento === id)}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </fieldset>
+
+                      {form.pagamento === 'dinheiro' && (
+                        <div>
+                          <label htmlFor="cart-troco" className={labelClass}>
+                            Troco para quanto?
+                          </label>
+                          <input
+                            id="cart-troco"
+                            inputMode="decimal"
+                            placeholder="R$ 100,00"
+                            disabled={form.semTroco}
+                            value={form.troco}
+                            onChange={set('troco')}
+                            aria-invalid={Boolean(errors.troco)}
+                            className={`${inputClass('troco')} disabled:opacity-50`}
+                          />
+                          {fieldError('troco')}
+                          <label className="mt-2 flex items-center gap-2 text-sm text-ink">
+                            <input
+                              type="checkbox"
+                              checked={form.semTroco}
+                              onChange={(e) => {
+                                setForm((f) => ({ ...f, semTroco: e.target.checked }))
+                                setErrors((errs) => ({ ...errs, troco: undefined }))
+                              }}
+                              className="size-4 accent-terracotta-500"
+                            />
+                            Não preciso de troco
+                          </label>
+                        </div>
+                      )}
+                    </>
                   )}
 
                   <div>
@@ -344,7 +591,7 @@ export default function CartDrawer() {
                     <textarea
                       id="cart-obs"
                       rows={2}
-                      placeholder="Troco, horário para entrega…"
+                      placeholder="Horário para entrega, recado para a equipe…"
                       value={form.observacoes}
                       onChange={set('observacoes')}
                       className={inputClass('observacoes')}

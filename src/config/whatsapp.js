@@ -46,7 +46,7 @@ export const WHATSAPP_MESSAGES = {
       'Podem confirmar?',
     ]),
 
-  pedidoLoja: ({ numero, itens, total, sobConsulta, entrega, endereco }) =>
+  pedidoLoja: ({ numero, itens, total, sobConsulta, entrega, endereco, pagamento }) =>
     lista([
       `Olá! Fiz um pedido pelo site (nº ${numero}):`,
       '',
@@ -57,6 +57,7 @@ export const WHATSAPP_MESSAGES = {
       '',
       `Total: ${total}${sobConsulta ? ' + itens sob consulta' : ''}`,
       entrega === 'entrega' ? `Entregar em: ${endereco}` : 'Vou retirar na loja',
+      pagamento ? `Pagamento: ${pagamento}` : null,
       itens.some((i) => i.exige_receita) ? 'Vou enviar a foto da receita aqui.' : null,
       '',
       'Podem confirmar?',
