@@ -92,7 +92,7 @@ export default function Relatorios() {
             />
             <Ranking
               titulo="Banho e tosa mais agendados"
-              subtitulo="Agendamentos que não foram recusados"
+              subtitulo="Agendamentos que não foram recusados nem cancelados"
               itens={r.topServicos}
               vazio="Nenhum banho ou tosa no período."
             />
@@ -104,7 +104,7 @@ export default function Relatorios() {
 }
 
 function calcular(pedidos, dias) {
-  const validos = pedidos.filter((p) => p.status !== 'recusado')
+  const validos = pedidos.filter((p) => p.status !== 'recusado' && p.status !== 'cancelado')
   const atendidos = pedidos.filter(atendido)
 
   // série diária contínua (dias sem pedido aparecem com zero)

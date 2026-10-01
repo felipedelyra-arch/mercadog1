@@ -34,7 +34,7 @@ export default function BookingForm({
   const [errors, setErrors] = useState({})
   const [sending, setSending] = useState(false)
   const [submitError, setSubmitError] = useState(null)
-  // { numero } depois que o pedido foi gravado
+  // { numero, codigo } depois que o pedido foi gravado
   const [pedido, setPedido] = useState(null)
 
   const set = (field) => (e) => {
@@ -61,7 +61,7 @@ export default function BookingForm({
     setSending(true)
     setSubmitError(null)
     try {
-      const { numero } = await criarPedido({
+      const { numero, codigo } = await criarPedido({
         tipo: TIPO_AGENDA[kind],
         cliente_nome: form.tutor,
         cliente_telefone: form.telefone,
@@ -72,7 +72,7 @@ export default function BookingForm({
         pet_nome: form.pet,
         pet_porte: PET_SIZES.find((s) => s.id === form.porte)?.label,
       })
-      setPedido({ numero })
+      setPedido({ numero, codigo })
     } catch (err) {
       setSubmitError(err.message)
     } finally {
@@ -140,6 +140,14 @@ export default function BookingForm({
             <WhatsAppIcon size={18} aria-hidden="true" />
             Enviar pedido no WhatsApp
           </Button>
+          {pedido.codigo && (
+            <Link
+              to={`/pedido/${pedido.codigo}`}
+              className="text-sm font-semibold text-clay underline underline-offset-2 hover:text-ink"
+            >
+              Acompanhar ou cancelar o agendamento
+            </Link>
+          )}
         </motion.div>
       ) : (
         /* ---- Formulário ---- */

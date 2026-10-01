@@ -67,7 +67,7 @@ export default function CartDrawer() {
   const [errors, setErrors] = useState({})
   const [sending, setSending] = useState(false)
   const [submitError, setSubmitError] = useState(null)
-  // { numero, message } do pedido recém-gravado
+  // { numero, codigo, message } do pedido recém-gravado
   const [pedido, setPedido] = useState(null)
 
   const close = () => {
@@ -165,7 +165,7 @@ export default function CartDrawer() {
     setSending(true)
     setSubmitError(null)
     try {
-      const { numero } = await criarPedido({
+      const { numero, codigo } = await criarPedido({
         tipo: 'loja',
         cliente_nome: form.nome,
         cliente_telefone: form.telefone,
@@ -183,7 +183,7 @@ export default function CartDrawer() {
         endereco,
         pagamento,
       })
-      setPedido({ numero, message })
+      setPedido({ numero, codigo, message })
       setStep('enviado')
       cart.clear()
     } catch (err) {
@@ -640,6 +640,11 @@ export default function CartDrawer() {
                   <WhatsAppIcon size={18} aria-hidden="true" />
                   Enviar pedido no WhatsApp
                 </Button>
+                {pedido.codigo && (
+                  <Button to={`/pedido/${pedido.codigo}`} variant="outline" onClick={close} className="w-full">
+                    Acompanhar ou cancelar o pedido
+                  </Button>
+                )}
                 <Link to="/loja" onClick={close} className="text-sm font-semibold text-clay underline">
                   Voltar para a loja
                 </Link>

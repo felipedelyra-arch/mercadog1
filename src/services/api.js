@@ -101,3 +101,26 @@ export async function criarPedido(pedido) {
   }
   return data
 }
+
+const CANCELAMENTO_ERROS = {
+  pedido_inexistente: 'Não encontramos este pedido. Confira o link.',
+  nao_cancelavel:
+    'Este pedido não pode mais ser cancelado pelo site. Fale com a gente pelo WhatsApp.',
+}
+
+/** Pedido pelo código secreto do link /pedido/<código>; null se não existir. */
+export async function verPedido(codigo) {
+  const { data, error } = await supabase.rpc('ver_pedido', { p_codigo: codigo })
+  if (error) throw new Error('Não conseguimos carregar o pedido. Tente de novo em instantes.')
+  return data
+}
+
+/** Cancela pelo código e devolve o pedido já atualizado. */
+export async function cancelarPedido(codigo, motivo) {
+  const { data, error } = await supabase.rpc('cancelar_pedido', { p_codigo: codigo, p_motivo: motivo })
+  if (error) {
+    const code = Object.keys(CANCELAMENTO_ERROS).find((k) => error.message?.includes(k))
+    throw new Error(CANCELAMENTO_ERROS[code] ?? 'Não conseguimos cancelar agora. Tente de novo em instantes.')
+  }
+  return data
+}

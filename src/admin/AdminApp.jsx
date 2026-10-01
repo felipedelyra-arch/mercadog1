@@ -18,7 +18,7 @@ import {
 import { supabase } from '../lib/supabase'
 import Logo from '../components/ui/Logo'
 import Button from '../components/ui/Button'
-import { countPendentes, getMembro, onPedidoNovo, onPedidosChange, signIn, signOut } from './api'
+import { countPendentes, getMembro, onPedidoCancelado, onPedidoNovo, onPedidosChange, signIn, signOut } from './api'
 import { notificar, somLigado, tocarSom } from './alertas'
 import { TIPO_LABEL } from './pedidoInfo'
 import { useToast } from './toast'
@@ -202,6 +202,24 @@ function AdminShell({ membro, email, children }) {
         notificar(`Novo pedido #${p.numero}`, texto, abrir)
         toast({
           message: `Novo pedido #${p.numero} — ${texto}`,
+          tone: 'info',
+          actions: [{ label: 'Abrir', onClick: abrir }],
+          duration: 15000,
+        })
+      }),
+    [navigate, toast],
+  )
+
+  // cliente cancelou pelo site: mesmo alerta, para ninguém separar ou atender à toa
+  useEffect(
+    () =>
+      onPedidoCancelado((p) => {
+        const abrir = () => navigate(`/admin/pedidos/${p.id}`)
+        const texto = `${TIPO_LABEL[p.tipo]} · ${p.cliente_nome}`
+        if (somLigado()) tocarSom()
+        notificar(`Pedido #${p.numero} cancelado`, texto, abrir)
+        toast({
+          message: `Cliente cancelou o pedido #${p.numero} — ${texto}`,
           tone: 'info',
           actions: [{ label: 'Abrir', onClick: abrir }],
           duration: 15000,

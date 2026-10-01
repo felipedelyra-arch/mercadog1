@@ -19,6 +19,7 @@ import NotFound from './pages/NotFound'
 const Agendamento = lazy(() => import('./pages/Agendamento'))
 const Consultas = lazy(() => import('./pages/Consultas'))
 const Loja = lazy(() => import('./pages/Loja'))
+const MeuPedido = lazy(() => import('./pages/MeuPedido'))
 const Privacidade = lazy(() => import('./pages/Privacidade'))
 
 // Painel da equipe: baixado só por quem abre /admin — o cliente não paga por ele
@@ -38,6 +39,7 @@ function AnimatedRoutes() {
           <Route path="/agendamento" element={<Agendamento />} />
           <Route path="/consultas" element={<Consultas />} />
           <Route path="/loja" element={<Loja />} />
+          <Route path="/pedido/:codigo" element={<MeuPedido />} />
           <Route path="/privacidade" element={<Privacidade />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

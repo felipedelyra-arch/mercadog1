@@ -44,6 +44,7 @@ src/
 - `supabase/007_site_config.sql` — dados da loja (endereço, telefones, WhatsApp de cada setor, redes sociais) e equipe veterinária, editados na aba Ajustes. O site lê na abertura (`src/config/siteConfig.js`, com cópia no navegador); `src/config/site.js` e `whatsapp.js` ficam como reserva.
 - `supabase/008_receita.sql` — marcação "exige receita" nos produtos (painel → Produtos); aparece no card, no carrinho, na mensagem e no pedido.
 - `supabase/009_seguranca.sql` — freios contra spam no `criar_pedido` (por telefone, por IP e teto geral por hora; tamanho máximo do pedido) e bucket de fotos só com imagem até 5 MB.
+- `supabase/010_cancelamento.sql` — cada pedido ganha um código secreto; pelo link `/pedido/<código>` o cliente acompanha e cancela (agendamento confirmado só até 2h antes). O painel avisa na hora quando alguém cancela.
 - `supabase/lancamento_limpeza.sql` — rodar uma vez no dia do lançamento: apaga pedidos "TESTE…" e bloqueios de teste e recomeça a numeração.
 
 ## Publicação

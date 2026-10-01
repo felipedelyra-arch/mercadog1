@@ -1,5 +1,6 @@
-# O painel da equipe não entra no Google
+# O painel da equipe e as páginas de pedido não entram no Google
 User-agent: *
 Disallow: /admin
+Disallow: /pedido/
 
 Sitemap: https://mercadog-drab.vercel.app/sitemap.xml

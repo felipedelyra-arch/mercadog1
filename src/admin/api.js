@@ -103,6 +103,23 @@ export function onPedidoNovo(callback) {
   return () => supabase.removeChannel(channel)
 }
 
+/**
+ * Cliente cancelou pelo site (UPDATE para "cancelado"). O realtime não manda
+ * o status anterior, então vale só cancelamento do último minuto — assim
+ * salvar uma anotação num pedido cancelado não dispara o alerta de novo.
+ */
+export function onPedidoCancelado(callback) {
+  const channel = supabase
+    .channel(`pedidos-cancelados-${crypto.randomUUID()}`)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos' }, ({ new: pedido }) => {
+      if (pedido.status !== 'cancelado' || !pedido.cancelado_em) return
+      if (Date.now() - new Date(pedido.cancelado_em).getTime() > 60_000) return
+      callback(pedido)
+    })
+    .subscribe()
+  return () => supabase.removeChannel(channel)
+}
+
 /** Volta um pedido exatamente como estava antes de uma resposta (botão "Desfazer"). */
 export async function desfazerResposta(anterior) {
   return unwrap(

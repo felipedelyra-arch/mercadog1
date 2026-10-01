@@ -14,7 +14,11 @@ export const STATUS = {
   confirmado: { label: 'Confirmado', className: 'bg-emerald-100 text-emerald-800' },
   recusado: { label: 'Recusado', className: 'bg-red-100 text-red-700' },
   concluido: { label: 'Concluído', className: 'bg-sand text-clay' },
+  cancelado: { label: 'Cancelado pelo cliente', className: 'bg-zinc-200 text-zinc-700' },
 }
+
+/** Link do cliente para acompanhar/cancelar (o painel roda no mesmo domínio do site). */
+export const linkCliente = (p) => (p.codigo ? `${window.location.origin}/pedido/${p.codigo}` : null)
 
 const DATA_FMT = new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' })
 const HORA_FMT = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
@@ -72,8 +76,9 @@ export function mensagemCliente(p, status) {
         `Sem preço no site: ${semPreco.join(', ')}. Te passamos o valor antes de fechar.`,
       '',
       'Qualquer dúvida, é só responder aqui.',
+      linkCliente(p) && `Para acompanhar ou cancelar: ${linkCliente(p)}`,
     ]
-      .filter((linha) => linha !== false)
+      .filter((linha) => linha !== false && linha != null)
       .join('\n')
   }
 
@@ -89,7 +94,10 @@ export function mensagemCliente(p, status) {
     `Endereço: ${SITE.addressShort}`,
     '',
     'Se precisar remarcar, é só responder aqui.',
-  ].join('\n')
+    linkCliente(p) && `Para acompanhar ou cancelar: ${linkCliente(p)}`,
+  ]
+    .filter((linha) => linha != null)
+    .join('\n')
 }
 
 export const whatsCliente = (p, message) =>

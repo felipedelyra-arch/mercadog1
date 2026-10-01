@@ -105,6 +105,16 @@ export default function Pedido() {
         </p>
       </div>
 
+      {pedido.status === 'cancelado' && (
+        <div className="rounded-card border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-800">
+          <p className="font-semibold">
+            {pedido.cliente_nome.split(' ')[0]} cancelou pelo site
+            {pedido.cancelado_em && ` em ${formatCriadoEm(pedido.cancelado_em)}`}.
+          </p>
+          {pedido.motivo_cancelamento && <p className="mt-1">Motivo: {pedido.motivo_cancelamento}</p>}
+        </div>
+      )}
+
       {/* Avisar o cliente, logo depois de responder */}
       {respondido && (
         <div className="flex flex-col gap-3 rounded-card border border-emerald-200 bg-emerald-50 p-4 sm:flex-row sm:items-center">
@@ -272,7 +282,7 @@ export default function Pedido() {
               </Button>
             </>
           )}
-          {(pedido.status === 'recusado' || pedido.status === 'concluido') && (
+          {(pedido.status === 'recusado' || pedido.status === 'concluido' || pedido.status === 'cancelado') && (
             <Button variant="outline" onClick={() => responder('pendente')} loading={saving === 'pendente'} disabled={Boolean(saving)}>
               <RotateCcw size={18} aria-hidden="true" />
               Reabrir pedido
