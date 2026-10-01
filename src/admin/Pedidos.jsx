@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CalendarClock, Check, ChevronRight, Inbox, Search, ShoppingBag, Stethoscope, X } from 'lucide-react'
+import { CalendarClock, Check, ChevronRight, Inbox, Search, ShoppingBag, Stethoscope, Store, Truck, X } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { Skeleton } from '../components/ui/Skeleton'
 import { listPedidos, onPedidosChange } from './api'
@@ -16,6 +16,13 @@ const FILTROS = [
 
 const TIPO_ICON = { loja: ShoppingBag, banho_tosa: CalendarClock, consulta: Stethoscope }
 
+// recorte da loja: o que sai para entregar e o que fica no balcão
+const MODOS = [
+  { id: '', label: 'Todos' },
+  { id: 'entrega', label: 'Entrega', icon: Truck, ativo: 'bg-sky-600 text-white border-sky-600' },
+  { id: 'retirada', label: 'Retirada', icon: Store, ativo: 'bg-violet-600 text-white border-violet-600' },
+]
+
 /**
  * Lista de pedidos. Abre em "Aguardando", que é o que precisa de alguém.
  * Atualiza sozinha quando chega pedido novo (realtime do Supabase).
@@ -25,6 +32,7 @@ export default function Pedidos() {
   const [pedidos, setPedidos] = useState(null)
   const [error, setError] = useState(null)
   const [busca, setBusca] = useState('')
+  const [modo, setModo] = useState('')
 
   const load = useCallback(() => {
     listPedidos(filtro || undefined)
@@ -63,9 +71,14 @@ export default function Pedidos() {
 
   // "42" ou "#42" acha pelo número da mensagem; texto acha pelo nome do cliente
   const termo = busca.trim().replace(/^#/, '').toLowerCase()
-  const visiveis = !pedidos || !termo
-    ? pedidos
-    : pedidos.filter((p) => (/^\d+$/.test(termo) ? String(p.numero) === termo : p.cliente_nome.toLowerCase().includes(termo)))
+  const doModo = (p) => !modo || (p.tipo === 'loja' && p.entrega === modo)
+  const contagem = (id) => pedidos?.filter((p) => p.tipo === 'loja' && p.entrega === id).length ?? 0
+  const visiveis = pedidos?.filter(
+    (p) =>
+      doModo(p) &&
+      (!termo ||
+        (/^\d+$/.test(termo) ? String(p.numero) === termo : p.cliente_nome.toLowerCase().includes(termo))),
+  )
 
   return (
     <div className="flex flex-col gap-5">
@@ -102,6 +115,30 @@ export default function Pedidos() {
         />
       </label>
 
+      <div className="-mt-2 flex flex-wrap gap-2" role="group" aria-label="Filtrar por entrega ou retirada">
+        {MODOS.map(({ id, label, icon: Icon, ativo }) => (
+          <button
+            key={id || 'todos'}
+            type="button"
+            aria-pressed={modo === id}
+            onClick={() => setModo(id)}
+            className={`flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 text-sm font-semibold transition-colors ${
+              modo === id
+                ? (ativo ?? 'border-ink bg-ink text-white')
+                : 'border-sand-dark bg-white text-clay hover:bg-cream'
+            }`}
+          >
+            {Icon && <Icon size={16} aria-hidden="true" />}
+            {label}
+            {id && pedidos && (
+              <span className={`rounded-full px-1.5 text-xs ${modo === id ? 'bg-white/25' : 'bg-sand'}`}>
+                {contagem(id)}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
       {error ? (
         <p className="rounded-card bg-red-50 p-4 text-sm font-semibold text-red-600">
           Não foi possível carregar os pedidos. Confira a internet e recarregue a página.
@@ -116,7 +153,13 @@ export default function Pedidos() {
         <div className="flex flex-col items-center gap-2 rounded-card border border-sand bg-white px-6 py-14 text-center">
           <Inbox size={36} className="text-terracotta-300" aria-hidden="true" />
           <p className="font-display text-lg font-semibold text-ink">
-            {termo ? 'Nenhum pedido encontrado' : filtro === 'pendente' ? 'Nenhum pedido aguardando' : 'Nenhum pedido aqui'}
+            {termo
+              ? 'Nenhum pedido encontrado'
+              : modo
+                ? `Nenhum pedido de ${modo} aqui`
+                : filtro === 'pendente'
+                  ? 'Nenhum pedido aguardando'
+                  : 'Nenhum pedido aqui'}
           </p>
           <p className="text-sm text-clay">
             {termo ? 'Confira o número ou procure em “Todos”.' : 'Pedidos novos aparecem sozinhos nesta tela.'}
