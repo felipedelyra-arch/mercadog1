@@ -8,6 +8,7 @@ import ScrollToTop from './components/layout/ScrollToTop'
 import WhatsAppFloat from './components/WhatsAppFloat'
 import CartDrawer from './components/CartDrawer'
 import CartBar from './components/CartBar'
+import CartToast from './components/CartToast'
 import ErrorBoundary from './components/ErrorBoundary'
 import { CartProvider } from './context/CartContext'
 import { desligarRolagemSuave, ligarRolagemSuave } from './lib/smoothScroll'
@@ -71,6 +72,7 @@ function PublicSite() {
       </div>
       <WhatsAppFloat />
       <CartBar />
+      <CartToast />
       <CartDrawer />
     </CartProvider>
   )

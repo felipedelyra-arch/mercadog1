@@ -20,15 +20,22 @@ const NAV_LINKS = [
 
 /** Sacola com contador; o número "pula" a cada item novo. */
 function CartButton() {
-  const { count, setOpen } = useCart()
+  const { count, setOpen, aviso } = useCart()
   return (
     <motion.button
+      // produto novo no carrinho: a sacola dá uns pulos e brilha, mostrando onde fica
+      key={aviso?.id ?? 'sacola'}
+      initial={aviso ? { scale: 1 } : false}
+      animate={aviso ? { scale: [1, 1.25, 0.95, 1.15, 1] } : undefined}
+      transition={aviso ? { duration: 0.8 } : undefined}
       type="button"
       onClick={() => setOpen(true)}
       aria-label={count ? `Abrir carrinho, ${count} ${count === 1 ? 'item' : 'itens'}` : 'Abrir carrinho'}
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.92 }}
-      className="relative grid size-11 shrink-0 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 md:size-10"
+      className={`relative grid size-11 shrink-0 place-items-center rounded-full text-white transition-colors md:size-10 ${
+        aviso ? 'bg-terracotta-500 ring-4 ring-terracotta-500/40' : 'bg-white/10 hover:bg-white/20'
+      }`}
     >
       <ShoppingBag size={19} aria-hidden="true" />
       <AnimatePresence>

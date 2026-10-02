@@ -24,6 +24,9 @@ function loadItems() {
 export function CartProvider({ children }) {
   const [items, setItems] = useState(loadItems)
   const [open, setOpen] = useState(false)
+  // { id, nome } do último produto adicionado — mostra o aviso e faz a sacola pulsar
+  const [aviso, setAviso] = useState(null)
+  const fecharAviso = useCallback(() => setAviso(null), [])
 
   useEffect(() => {
     try {
@@ -44,6 +47,7 @@ export function CartProvider({ children }) {
       const { id, nome, detalhes, preco, image, categorias, exige_receita } = product
       return [...current, { id, nome, detalhes, preco, image, categorias, exige_receita, quantidade: 1 }]
     })
+    setAviso({ id: Date.now(), produtoId: product.id, nome: product.nome })
   }, [])
 
   const setQuantity = useCallback((id, quantidade) => {
@@ -76,8 +80,10 @@ export function CartProvider({ children }) {
       clear,
       open,
       setOpen,
+      aviso,
+      fecharAviso,
     }
-  }, [items, open, add, setQuantity, remove, clear])
+  }, [items, open, aviso, add, setQuantity, remove, clear, fecharAviso])
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }
