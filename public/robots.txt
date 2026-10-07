@@ -3,4 +3,4 @@ User-agent: *
 Disallow: /admin
 Disallow: /pedido/
 
-Sitemap: https://mercadog-drab.vercel.app/sitemap.xml
+Sitemap: https://www.mercadog.com.br/sitemap.xml

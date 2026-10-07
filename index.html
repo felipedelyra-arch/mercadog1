@@ -14,9 +14,13 @@
     <meta name="theme-color" content="#2E2622" />
     <meta name="color-scheme" content="light" />
 
-    <!-- Endereço público do site. Ao ligar um domínio próprio (ex.: mercadog.com.br),
+    <!-- Abre a conexão com o banco enquanto o JS ainda baixa: a primeira
+         consulta (dados da loja, produtos) já encontra o caminho pronto. -->
+    <link rel="preconnect" href="%VITE_SUPABASE_URL%" crossorigin />
+
+    <!-- Endereço público do site. Se o domínio mudar,
          troque aqui, no public/robots.txt e no public/sitemap.xml. -->
-    <link rel="canonical" href="https://mercadog-drab.vercel.app/" />
+    <link rel="canonical" href="https://www.mercadog.com.br/" />
 
     <!-- Prévia ao compartilhar o link (WhatsApp, Facebook, Instagram) -->
     <meta property="og:type" content="website" />
@@ -27,8 +31,8 @@
       property="og:description"
       content="Emergência 24h, consultas, banho e tosa com horário marcado pelo site e loja de produtos veterinários."
     />
-    <meta property="og:url" content="https://mercadog-drab.vercel.app/" />
-    <meta property="og:image" content="https://mercadog-drab.vercel.app/hero-dog.jpg" />
+    <meta property="og:url" content="https://www.mercadog.com.br/" />
+    <meta property="og:image" content="https://www.mercadog.com.br/hero-dog.jpg" />
     <meta property="og:image:alt" content="Cachorro beagle sorrindo" />
     <meta name="twitter:card" content="summary_large_image" />
 
@@ -38,8 +42,8 @@
         "@context": "https://schema.org",
         "@type": ["VeterinaryCare", "PetStore"],
         "name": "Mercadog Clínica Veterinária e Pet Shop",
-        "url": "https://mercadog-drab.vercel.app/",
-        "image": "https://mercadog-drab.vercel.app/hero-dog.jpg",
+        "url": "https://www.mercadog.com.br/",
+        "image": "https://www.mercadog.com.br/hero-dog.jpg",
         "telephone": "+55-14-3491-1244",
         "email": "wilsonaguiari@hotmail.com",
         "address": {

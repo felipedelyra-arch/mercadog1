@@ -21,35 +21,22 @@ const render = (key) =>
 
 /*
  * Dados da loja (endereço, telefones, WhatsApp) vêm do painel.
- * - Com cópia guardada no navegador: mostra o site na hora com ela e confere
- *   o banco por trás; se algo mudou, redesenha uma vez com os dados novos.
- * - Primeira visita: espera o banco até 2,5 s; se demorar, abre com os
- *   valores de reserva do código e aplica os do banco quando chegarem.
+ * O site abre na hora — com a cópia guardada no navegador ou, na primeira
+ * visita, com os valores de reserva do código — e confere o banco por trás;
+ * se algo mudou, redesenha uma vez com os dados novos. Esperar o banco antes
+ * de desenhar deixava a tela em branco no 4G.
  */
 const cached = readCachedSiteConfig()
-let rendered = false
+if (cached) applySiteConfig(cached)
+render('site')
 
-if (cached) {
-  applySiteConfig(cached)
-  render('site')
-  rendered = true
-}
-
-const fresh = fetchSiteConfig()
+fetchSiteConfig()
   .then((dados) => {
     if (!dados) return
     cacheSiteConfig(dados)
     if (JSON.stringify(dados) === JSON.stringify(cached)) return
     applySiteConfig(dados)
     // já na tela com dados antigos: remonta para todos os componentes lerem os novos
-    if (rendered) render('site-atualizado')
+    render('site-atualizado')
   })
   .catch(() => {})
-
-if (!rendered) {
-  Promise.race([fresh, new Promise((resolve) => setTimeout(resolve, 2500))]).then(() => {
-    if (rendered) return
-    rendered = true
-    render('site')
-  })
-}
